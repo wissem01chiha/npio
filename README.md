@@ -1,4 +1,13 @@
-# Purpose:
+<!-- omit in toc -->
+# NPIO
+
+- [Installation](#installation)
+- [Using](#using)
+- [Description](#description)
+
+npio is a C++11 copy of [cnpy](https://github.com/rogersce/cnpy) writtin by Carl Rogers librray for reading/writing numpy npy and npz files which is not actively maintained.
+
+
 
 NumPy offers the `save` method for easy saving of arrays into .npy and `savez` for zipping multiple .npy arrays together into a .npz file. 
 
@@ -11,7 +20,7 @@ The .npy file header takes care of specifying the size, shape, and data type of 
 
 Loading data written in numpy formats into C++ is equally simple, but requires you to type-cast the loaded data to the type of your choice.
 
-# Installation:
+# Installation
 
 Default installation directory is /usr/local. 
 To specify a different directory, add `-DCMAKE_INSTALL_PREFIX=/path/to/install/dir` to the cmake invocation in step 4.
@@ -23,7 +32,7 @@ To specify a different directory, add `-DCMAKE_INSTALL_PREFIX=/path/to/install/d
 5. make
 6. make install
 
-# Using:
+# Using
 
 To use, `#include"cnpy.h"` in your source code. Compile the source code mycode.cpp as
 
@@ -31,7 +40,7 @@ To use, `#include"cnpy.h"` in your source code. Compile the source code mycode.c
 g++ -o mycode mycode.cpp -L/path/to/install/dir -lcnpy -lz --std=c++11
 ```
 
-# Description:
+# Description
 
 There are two functions for writing data: `npy_save` and `npz_save`.
 

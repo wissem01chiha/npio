@@ -2,8 +2,8 @@
 //Released under MIT License
 //license available in LICENSE file, or at http://www.opensource.org/licenses/mit-license.php
 
-#ifndef LIBCNPY_H_
-#define LIBCNPY_H_
+#ifndef NPIO_H_
+#define NPIO_H_
 
 #include<string>
 #include<stdexcept>
@@ -266,4 +266,4 @@ namespace cnpy {
 
 }
 
-#endif
+#endif // NPIO_H_
