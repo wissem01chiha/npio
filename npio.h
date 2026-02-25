@@ -2,8 +2,8 @@
 //Released under MIT License
 //license available in LICENSE file, or at http://www.opensource.org/licenses/mit-license.php
 
-#ifndef NPIO_H_
-#define NPIO_H_
+#ifndef NPIO_H
+#define NPIO_H
 
 #include<string>
 #include<stdexcept>
@@ -19,7 +19,8 @@
 #include<stdint.h>
 #include<numeric>
 
-namespace cnpy {
+
+
 
     struct NpyArray {
         NpyArray(const std::vector<size_t>& _shape, size_t _word_size, bool _fortran_order) :
@@ -264,6 +265,6 @@ namespace cnpy {
     }
 
 
-}
+//};
 
-#endif // NPIO_H_
+#endif // NPIO_H

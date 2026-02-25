@@ -1,12 +1,12 @@
 <!-- omit in toc -->
 # NPIO
 
-- [Installation](#installation)
-- [Using](#using)
-- [Description](#description)
+- [1.0 Installation](#10-installation)
+- [2.0 Using](#20-using)
+- [3.0 Description](#30-description)
+  - [4.0 License](#40-license)
 
-npio is a C++11 copy of [cnpy](https://github.com/rogersce/cnpy) writtin by Carl Rogers librray for reading/writing numpy npy and npz files which is not actively maintained.
-
+npio is a C++11 copy of [cnpy](https://github.com/rogersce/cnpy) writtin by Carl Rogers librray for reading/writing [numpy]() npy and npz files which is not actively maintained.
 
 
 NumPy offers the `save` method for easy saving of arrays into .npy and `savez` for zipping multiple .npy arrays together into a .npz file. 
@@ -20,7 +20,7 @@ The .npy file header takes care of specifying the size, shape, and data type of 
 
 Loading data written in numpy formats into C++ is equally simple, but requires you to type-cast the loaded data to the type of your choice.
 
-# Installation
+# 1.0 Installation
 
 Default installation directory is /usr/local. 
 To specify a different directory, add `-DCMAKE_INSTALL_PREFIX=/path/to/install/dir` to the cmake invocation in step 4.
@@ -32,7 +32,7 @@ To specify a different directory, add `-DCMAKE_INSTALL_PREFIX=/path/to/install/d
 5. make
 6. make install
 
-# Using
+# 2.0 Using
 
 To use, `#include"cnpy.h"` in your source code. Compile the source code mycode.cpp as
 
@@ -40,7 +40,7 @@ To use, `#include"cnpy.h"` in your source code. Compile the source code mycode.c
 g++ -o mycode mycode.cpp -L/path/to/install/dir -lcnpy -lz --std=c++11
 ```
 
-# Description
+# 3.0 Description
 
 There are two functions for writing data: `npy_save` and `npz_save`.
 
@@ -61,4 +61,7 @@ struct NpyArray {
 };
 ```
 
-See [example1.cpp](example1.cpp) for examples of how to use the library. example1 will also be build during cmake installation.
+See [example](/example/) folder for examples of how to use the library.
+
+## 4.0 License 
+

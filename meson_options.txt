@@ -1,0 +1,3 @@
+# require meson >= 0.47.0
+option('test', type : 'feature', value : 'disabled', description : 'build tests')  
+option('example', type : 'feature', value : 'disabled', description : 'build examples') 
