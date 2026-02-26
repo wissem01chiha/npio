@@ -1,6 +1,11 @@
 <!-- omit in toc -->
 # NPIO
 
+![AppVeyor Build](https://img.shields.io/appveyor/build/wissem01chiha/npio)
+![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
+[![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
+
+
 - [1.0 Installation](#10-installation)
 - [2.0 Using](#20-using)
 - [3.0 Description](#30-description)
