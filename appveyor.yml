@@ -32,7 +32,7 @@ build_script:
 
 test_script:
   - if "%configuration%"=="Debug" (
-        ctest --test-dir build --output-on-failure --config Debug
+        ctest --test-dir build --output-on-failure -C Debug
     )
 
 after_build:
