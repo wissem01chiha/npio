@@ -1,0 +1,39 @@
+version: 1.0.{build}
+
+environment:
+  matrix:
+    - image: Visual Studio 2022
+      platform: x64
+      configuration: Debug
+    - image: Visual Studio 2022
+      platform: x64
+      configuration: Release
+    - image: Visual Studio 2017
+      platform: x86
+      configuration: Debug
+    - image: Visual Studio 2015
+      platform: x64
+      configuration: Release
+
+matrix:
+  allow_failures:
+    - image: Visual Studio 2017
+      platform: x86
+      configuration: Debug
+    - image: Visual Studio 2015
+      platform: x64
+      configuration: Release
+
+before_build:
+  - cmake -S . -B build -DCMAKE_BUILD_TYPE=%configuration%
+
+build_script:
+  - cmake --build build --config %configuration%
+
+test_script:
+  - if "%configuration%"=="Debug" (
+        ctest --test-dir build --output-on-failure --config Debug
+    )
+
+after_build:
+  - cmake --build build --config %configuration% --target PACKAGE

@@ -13,10 +13,10 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "main" ]
+    branches: [ "**" ]
   schedule:
     - cron: '27 3 * * 2'
 
@@ -57,9 +57,18 @@ jobs:
 
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+    #- name: Autobuild
+    #  uses: github/codeql-action/autobuild@v2
+    - name: Configure CMake
+      run: cmake -S . -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=Debug
 
+    - name: Build with GCC
+      run: cmake --build ${{ github.workspace }}/build --config Debug
+
+    - name: Run tests with CTest
+      working-directory: ${{ github.workspace }}/build
+      run: ctest -C Debug --output-on-failure
+      
     # Command-line programs to run using the OS shell.
     # See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
 

@@ -1,6 +1,7 @@
 <!-- omit in toc -->
 # NPIO
 
+[![Ubuntu](https://github.com/wissem01chiha/npio/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/ubuntu.yml)
 ![AppVeyor Build](https://img.shields.io/appveyor/build/wissem01chiha/npio)
 ![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
 [![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
