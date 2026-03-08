@@ -1,120 +1,46 @@
-//Copyright (C) 2011  Carl Rogers
-//Released under MIT License
-//license available in LICENSE file, or at http://www.opensource.org/licenses/mit-license.php
-
 #include "npio.h"
 #include "unity.h"
 
-// https://github.com/ThrowTheSwitch/Unity/blob/master/docs/UnityGettingStartedGuide.md
-void setUp(void) {
-    // set stuff up here
+void setUp(void)
+{
 }
 
-void tearDown(void) {
-    // clean stuff up here
+void tearDown(void)
+{
 }
 
-
-void test_function_should_doBlahAndBlah(void) {
-    //test stuff
+void test_npio_strerror_ok(void)
+{
+    static const npio_size_t bufsize = 10;
+    char                     buf[10];
+    int                      es = npio_strerror(NPIO_OK, buf, bufsize);
+    UNITY_TEST_ASSERT_NOT_EQUAL_INT(-1, es, "", "");
+    UNITY_TEST_ASSERT_EQUAL_STRING("Sucess", buf, "", "");
 }
 
-void test_function_should_doAlsoDoBlah(void) {
-    //more test stuff
+void test_npio_strerror_unkown(void)
+{
+    static const npio_size_t bufsize = 20;
+    char                     buf[20];
+    int                      es = npio_strerror(0x0064, buf, bufsize);
+    UNITY_TEST_ASSERT_NOT_EQUAL_INT(-1, es, "", "");
+    UNITY_TEST_ASSERT_EQUAL_STRING("Unknown error", buf, "", "");
 }
 
-// not needed when using generate_test_runner.rb
-int main(void) {
+void test_npio_strerror_buffer_overflow(void)
+{
+    static const npio_size_t bufsize = 20;
+    char                     buf[20];
+    int                      es = npio_strerror(NPIO_EBUF, buf, bufsize);
+    UNITY_TEST_ASSERT_GREATER_THAN_INT(0, es, "", "");
+    UNITY_TEST_ASSERT_EQUAL_STRING("Buffer overflow", buf, "", "");
+}
+
+int main(void)
+{
     UNITY_BEGIN();
-    RUN_TEST(test_function_should_doBlahAndBlah);
-    RUN_TEST(test_function_should_doAlsoDoBlah);
+    RUN_TEST(test_npio_strerror_ok);
+    RUN_TEST(test_npio_strerror_buffer_overflow);
+    RUN_TEST(test_npio_strerror_unkown);
     return UNITY_END();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const int Nx = 128;
-// const int Ny = 64;
-// const int Nz = 32;
-// class NpyIoTest : public ::testing::Test {
-// protected:
-//     std::vector<std::complex<double>> data;
-
-//     void SetUp() override {
-//         srand(0);
-//         data.resize(Nx * Ny * Nz);
-//         for (int i = 0; i < Nx * Ny * Nz; i++) {
-//             data[i] = std::complex<double>(rand(), rand());
-//         }
-//     }
-// };
-
-// TEST_F(NpyIoTest, SaveAndLoadNpy) {
-//     npy_save("arr1.npy", &data[0], {Nz, Ny, Nx}, "w");
-
-//     NpyArray arr = npy_load("arr1.npy");
-//     std::complex<double>* loaded_data = arr.data<std::complex<double>>();
-
-//     EXPECT_EQ(arr.word_size, sizeof(std::complex<double>));
-//     ASSERT_EQ(arr.shape.size(), 3u);
-//     EXPECT_EQ(arr.shape[0], Nz);
-//     EXPECT_EQ(arr.shape[1], Ny);
-//     EXPECT_EQ(arr.shape[2], Nx);
-
-//     for (int i = 0; i < Nx * Ny * Nz; i++) {
-//         EXPECT_EQ(data[i], loaded_data[i]);
-//     }
-// }
-
-// TEST_F(NpyIoTest, AppendToNpy) {
-//     npy_save("arr1.npy", &data[0], {Nz, Ny, Nx}, "w");
-//     npy_save("arr1.npy", &data[0], {Nz, Ny, Nx}, "a");
-
-//     NpyArray arr = npy_load("arr1.npy");
-//     ASSERT_EQ(arr.shape.size(), 3u);
-//     EXPECT_EQ(arr.shape[0], 2 * Nz); // appended along first dimension
-//     EXPECT_EQ(arr.shape[1], Ny);
-//     EXPECT_EQ(arr.shape[2], Nx);
-// }
-
-// TEST_F(NpyIoTest, SaveAndLoadNpz) {
-//     double myVar1 = 1.2;
-//     char myVar2 = 'a';
-
-//     npz_save("out.npz", "myVar1", &myVar1, {1}, "w");
-//     npz_save("out.npz", "myVar2", &myVar2, {1}, "a");
-//     npz_save("out.npz", "arr1", &data[0], {Nz, Ny, Nx}, "a");
-
-//     NpyArray arr2 = npz_load("out.npz", "arr1");
-//     EXPECT_EQ(arr2.shape.size(), 3u);
-//     EXPECT_EQ(arr2.shape[0], Nz);
-//     EXPECT_EQ(arr2.shape[1], Ny);
-//     EXPECT_EQ(arr2.shape[2], Nx);
-
-//     npz_t my_npz = npz_load("out.npz");
-//     NpyArray arr_mv1 = my_npz["myVar1"];
-//     double* mv1 = arr_mv1.data<double>();
-
-//     ASSERT_EQ(arr_mv1.shape.size(), 1u);
-//     EXPECT_EQ(arr_mv1.shape[0], 1);
-//     EXPECT_DOUBLE_EQ(mv1[0], myVar1);
-// }

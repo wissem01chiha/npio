@@ -2,7 +2,7 @@
 # NPIO
 
 [![Ubuntu](https://github.com/wissem01chiha/npio/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/ubuntu.yml)
-![AppVeyor Build](https://img.shields.io/appveyor/build/wissem01chiha/npio)
+[![Build status](https://ci.appveyor.com/api/projects/status/d44jk17qd31j70qg?svg=true)](https://ci.appveyor.com/project/wissem01chiha/npio)
 [![CodeQL](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml)
 ![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
 [![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
@@ -13,7 +13,7 @@
 - [3.0 Description](#30-description)
   - [4.0 License](#40-license)
 
-npio is a C++11 copy of [cnpy](https://github.com/rogersce/cnpy) writtin by Carl Rogers librray for reading/writing [numpy]() npy and npz files which is not actively maintained.
+npio is a C99 version of [cnpy](https://github.com/rogersce/cnpy) writtin by Carl Rogers librray for reading/writing [numpy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) npy and npz files which is not actively maintained.
 
 
 NumPy offers the `save` method for easy saving of arrays into .npy and `savez` for zipping multiple .npy arrays together into a .npz file. 

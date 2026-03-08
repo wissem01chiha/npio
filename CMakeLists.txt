@@ -8,13 +8,17 @@ project(NPIO VERSION 0.1.0 LANGUAGES C)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 set(CMAKE_EXPORT_COMPILE_COMMANDS OFF)
 set(BUILD_SHARED_LIBS OFF)
+set (CTEST_OUTPUT_ON_FAILURE TRUE)
+option(ENABLE_STATIC "build static library" ON)
+option(ENABLE_TESTS "build tests" ON)
 
 set(NPIO_TEST_SOURCES
   test/test_npio_strerror.c
+  test/test_npy_init.c
+  test/test_npy_save.c
+  test/test_npz_load.c
 )
 
-option(ENABLE_STATIC "build static library" ON)
-option(ENABLE_TESTS "build tests" ON)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")

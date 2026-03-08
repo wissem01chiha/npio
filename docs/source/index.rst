@@ -8,7 +8,7 @@ Welcome to the npio documentation
    :target: https://github.com/wissem01chiha/npio/actions/workflows/ubuntu.yml
    :alt: Ubuntu
 
-.. image:: https://img.shields.io/appveyor/build/wissem01chiha/npio
+.. image:: https://ci.appveyor.com/api/projects/status/d44jk17qd31j70qg?svg=true
    :alt: AppVeyor Build
 
 .. image:: https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml/badge.svg

@@ -1,36 +1,154 @@
-//Copyright (C) 2011  Carl Rogers
-//Released under MIT License
-//license available in LICENSE file, or at http://www.opensource.org/licenses/mit-license.php
+/**
+    Copyright (c) Wissem Chiha, 2026
 
-#include"npio.h"
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
 
-char *npio_strerror(npio_status_t statcode, char *buf, npio_size_t bufsize)
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+
+    Copyright (c) Carl Rogers, 2011
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+*/
+
+#include "npio.h"
+
+static const struct
 {
+    npio_status_t code;
+    const char   *msg;
+} gaErrorList[] = {
+    {NPIO_OK, "Sucess"},
+    {NPIO_EOF, "End of the file encountered"},
+    {NPIO_EBUF, "Buffer overflow"},
+    {NPIO_EDIM, "Array dimensions exceed limits"},
+    {NPIO_EFREAD, "Failed to read the file"},
+    {NPIO_EFWRITE, "Failed to write the file"},
+    {NPIO_EBUF_NULL, "Buffer pointer is NULL"},
+    {NPIO_EBUF_SIZE_ZERO, "Buffer size is zero"},
+    {NPIO_EBUF_TRUNCATED, "Buffer truncated"},
+    {NPIO_EARR_NULL, "Null pointer to array"},
+    {NPIO_EARR_DIM, "Dimension exceed allowed"},
+    {NPIO_EFOPEN, "Failed to open the file"},
+    {NPIO_EUNKNOWN, "Unknown error"},
+
+};
+
+int npio_strerror(npio_status_t statcode, char *buf, npio_size_t bufsize)
+{
+    if (buf == NULL)
+    {
+        return NPIO_EBUF_NULL;
+    }
+    if (bufsize == 0)
+    {
+        return NPIO_EBUF_SIZE_ZERO;
+    }
+
+    npio_size_t i;
+    for (i = 0; gaErrorList[i].msg; i++)
+    {
+        if (statcode == gaErrorList[i].code)
+        {
+            int s = snprintf(buf, bufsize, "%s", gaErrorList[i].msg);
+            if (s > bufsize)
+            {
+                return NPIO_EBUF_TRUNCATED;
+            }
+            return s;
+        }
+    }
+
+    return NPIO_EUNKNOWN;
+}
+
+const char *npio_error_string(npio_status_t statcode)
+{
+    npio_size_t i;
+    for (i = 0; gaErrorList[i].msg; i++)
+    {
+        if (statcode == gaErrorList[i].code)
+        {
+            return gaErrorList[i].msg;
+        }
+    }
     return NULL;
-}
-
-npio_status_t npz_load(const char *pfname, npz_t *pnpz, npy_array_t* parray)
-{
-    return NPIO_OK;
-}
-
-npio_status_t npz_var_load(const char *pfname, const char *pVarname, npy_array_t *parray)
-{
-    return NPIO_OK;
 }
 
 npio_status_t npy_load(const char *pfname, npy_array_t *parray)
 {
+    FILE *fp = fopen(pfname, "rb");
+    if (!fp)
+    {
+        return NPIO_EFOPEN;
+    }
+    if (parray == NULL)
+    {
+        return NPIO_EARR_NULL;
+    }
+    char        buffer[NPIO_BUF_SIZE];
+    npio_size_t res = fread(buffer, sizeof(char), 11, fp);
+    if (res != 11)
+    {
+        if (feof(fp) == EOF)
+        {
+            return NPIO_EOF;
+        }
+        return NPIO_EFREAD;
+    }
+    char *pheader = fgets(buffer, NPIO_BUF_SIZE, fp);
+    if (pheader == NULL)
+    {
+        return NPIO_EUNKNOWN;
+    }
+
     return NPIO_OK;
 }
 
-npio_status_t npy_save(const char *pfname, const char *pdata, const npy_shape_t *pshape, const char *pmode)
+npio_status_t npy_read(unsigned char     *buffer,
+                       npio_size_t       *word_size,
+                       const npy_shape_t *pshape,
+                       npio_bool_t       *fortran_order)
 {
+    if (buffer == NULL)
+    {
+        return NPIO_EBUF_NULL;
+    }
+
     return NPIO_OK;
 }
 
-npio_status_t npz_save(const char *pzipname, const char *pfname, const char *data, const npy_shape_t *pshape, const char *pmode)
+npio_status_t
+npy_save(const char *pfname, const char *pdata, const npy_shape_t *pshape, const char *pmode)
 {
     return NPIO_OK;
 }
@@ -40,22 +158,44 @@ npio_status_t npy_init(const npy_shape_t *pshape, char *pheader)
     return NPIO_OK;
 }
 
-npio_status_t npy_fs_read(FILE *fp, npio_size_t word_size, const npy_shape_t *pshape, npio_bool_t fortran_order)
+npio_status_t
+npy_fs_read(FILE *fp, npio_size_t word_size, const npy_shape_t *pshape, npio_bool_t fortran_order)
 {
     return NPIO_OK;
 }
 
-npio_status_t npy_read(unsigned char *buffer, npio_size_t word_size, const npy_shape_t *pshape, npio_bool_t fortran_order)
+npio_status_t npz_load(const char *pfname, npz_t *pnpz, npy_array_t *parray)
+{
+    FILE *fp = fopen(pfname, "rb");
+    if (!fp)
+    {
+        return NPIO_EFREAD;
+    }
+    fclose(fp);
+    return NPIO_OK;
+}
+
+npio_status_t npz_array_load(const char *pfname, const char *pvarname, npy_array_t *parray)
 {
     return NPIO_OK;
 }
 
-npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_header_size, npio_size_t global_header_offset)
+npio_status_t npz_save(const char        *pzipname,
+                       const char        *pfname,
+                       const char        *data,
+                       const npy_shape_t *pshape,
+                       const char        *pmode)
 {
     return NPIO_OK;
 }
 
-
+npio_status_t npio_zip_read(FILE         *fp,
+                            npio_uint16_t nrecs,
+                            npio_size_t   global_header_size,
+                            npio_size_t   global_header_offset)
+{
+    return NPIO_OK;
+}
 
 // char BigEndianTest() {
 //     int x = 1;
@@ -104,7 +244,8 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //     return lhs;
 // }
 
-// void parse_npy_header(unsigned char* buffer,size_t& word_size, std::vector<size_t>& shape, bool& fortran_order) {
+// void parse_npy_header(unsigned char* buffer,size_t& word_size, std::vector<size_t>& shape, bool&
+// fortran_order) {
 //     //std::string magic_string(buffer,6);
 //     uint8_t major_version = *reinterpret_cast<uint8_t*>(buffer+6);
 //     uint8_t minor_version = *reinterpret_cast<uint8_t*>(buffer+7);
@@ -132,7 +273,7 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //     }
 
 //     //endian, word size, data type
-//     //byte order code | stands for not applicable. 
+//     //byte order code | stands for not applicable.
 //     //not sure when this applies except for byte array
 //     loc1 = header.find("descr")+9;
 //     bool littleEndian = (header[loc1] == '<' || header[loc1] == '|' ? true : false);
@@ -146,9 +287,10 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //     word_size = atoi(str_ws.substr(0,loc2).c_str());
 // }
 
-// void parse_npy_header(FILE* fp, size_t& word_size, std::vector<size_t>& shape, bool& fortran_order) {  
+// void parse_npy_header(FILE* fp, size_t& word_size, std::vector<size_t>& shape, bool&
+// fortran_order) {
 //     char buffer[256];
-//     size_t res = fread(buffer,sizeof(char),11,fp);       
+//     size_t res = fread(buffer,sizeof(char),11,fp);
 //     if(res != 11)
 //         throw std::runtime_error("parse_npy_header: failed fread");
 //     std::string header = fgets(buffer,256,fp);
@@ -159,7 +301,8 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //     //fortran order
 //     loc1 = header.find("fortran_order");
 //     if (loc1 == std::string::npos)
-//         throw std::runtime_error("parse_npy_header: failed to find header keyword: 'fortran_order'");
+//         throw std::runtime_error("parse_npy_header: failed to find header keyword:
+//         'fortran_order'");
 //     loc1 += 16;
 //     fortran_order = (header.substr(loc1,4) == "True" ? true : false);
 
@@ -180,7 +323,7 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //     }
 
 //     //endian, word size, data type
-//     //byte order code | stands for not applicable. 
+//     //byte order code | stands for not applicable.
 //     //not sure when this applies except for byte array
 //     loc1 = header.find("descr");
 //     if (loc1 == std::string::npos)
@@ -197,7 +340,8 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //     word_size = atoi(str_ws.substr(0,loc2).c_str());
 // }
 
-// void parse_zip_footer(FILE* fp, uint16_t& nrecs, size_t& global_header_size, size_t& global_header_offset)
+// void parse_zip_footer(FILE* fp, uint16_t& nrecs, size_t& global_header_size, size_t&
+// global_header_offset)
 // {
 //     std::vector<char> footer(22);
 //     fseek(fp,-22,SEEK_END);
@@ -279,7 +423,7 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //         throw std::runtime_error("npz_load: Error! Unable to open file "+fname+"!");
 //     }
 
-//     npz_t arrays;  
+//     npz_t arrays;
 
 //     while(1) {
 //         std::vector<char> local_header(30);
@@ -297,7 +441,7 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //         if(vname_res != name_len)
 //             throw std::runtime_error("npz_load: failed fread");
 
-//         //erase the lagging .npy        
+//         //erase the lagging .npy
 //         varname.erase(varname.end()-4,varname.end());
 
 //         //read in the extra field
@@ -318,7 +462,7 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //     }
 
 //     fclose(fp);
-//     return arrays;  
+//     return arrays;
 // }
 
 // NpyArray npz_load(std::string fname, std::string varname) {
@@ -338,7 +482,7 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //         //read in the variable name
 //         uint16_t name_len = *(uint16_t*) &local_header[26];
 //         std::string vname(name_len,' ');
-//         size_t vname_res = fread(&vname[0],sizeof(char),name_len,fp);      
+//         size_t vname_res = fread(&vname[0],sizeof(char),name_len,fp);
 //         if(vname_res != name_len)
 //             throw std::runtime_error("npz_load: failed fread");
 //         vname.erase(vname.end()-4,vname.end()); //erase the lagging .npy
@@ -346,15 +490,14 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //         //read in the extra field
 //         uint16_t extra_field_len = *(uint16_t*) &local_header[28];
 //         fseek(fp,extra_field_len,SEEK_CUR); //skip past the extra field
-        
+
 //         uint16_t compr_method = *reinterpret_cast<uint16_t*>(&local_header[0]+8);
 //         uint32_t compr_bytes = *reinterpret_cast<uint32_t*>(&local_header[0]+18);
 //         uint32_t uncompr_bytes = *reinterpret_cast<uint32_t*>(&local_header[0]+22);
 
 //         if(vname == varname) {
-//             NpyArray array  = (compr_method == 0) ? load_the_npy_file(fp) : load_the_npz_array(fp,compr_bytes,uncompr_bytes);
-//             fclose(fp);
-//             return array;
+//             NpyArray array  = (compr_method == 0) ? load_the_npy_file(fp) :
+//             load_the_npz_array(fp,compr_bytes,uncompr_bytes); fclose(fp); return array;
 //         }
 //         else {
 //             //skip past the data
@@ -380,5 +523,3 @@ npio_status_t npio_zip_read(FILE *fp, npio_uint16_t nrecs, npio_size_t global_he
 //     fclose(fp);
 //     return arr;
 // }
-
-

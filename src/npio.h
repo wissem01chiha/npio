@@ -44,9 +44,9 @@
 #define NPIO_H
 
 #include <zlib.h>
-#include <stddef.h>   
-#include <stdbool.h> 
-#include <string.h>  
+#include <stddef.h>
+#include <stdbool.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -57,146 +57,208 @@
 #define NPIO_VERSION_PATCH 0
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif /* __cplusplus */
 
-/**
- * @brief
- */
-typedef  size_t  npio_size_t;
-
-/**
- * @brief
- */
-typedef uint8_t npio_bool_t;
-
-/**
- * @brief
- */
-typedef uint16_t npio_uint16_t;
-
-
-/**
- * @brief Type for specifying an error or status code.
- */
-typedef int npio_status_t;
-
 /** no error. */
-#define NPIO_OK        0x00 
+#define NPIO_OK 0x00
 
-/** NPIO has encountered the end of the file. */
-#define NPIO_EOF       0x01 
+/** has encountered the end of the file. */
+#define NPIO_EOF 0x01
 
-/** NPIO detected a buffer overflow  */
-#define NPIO_EBUF      0x02 
+/** detected a buffer overflow  */
+#define NPIO_EBUF 0x02
 
-/** NPIO array dimensions exceed allowed limits. */
-#define NPIO_EDIM      0x03 
+/** array dimensions exceed allowed limits. */
+#define NPIO_EDIM 0x03
 
-/** NPIO maximum number of npy array dimensions */
-#define NPY_MAX_ARRAY_DIM 8
+/** failed to read the file */
+#define NPIO_EFREAD 0x04
 
-/** NPY array shape type */
-typedef struct {
-    size_t shape[NPY_MAX_ARRAY_DIM];  
-    size_t ndim;                  
-} npy_shape_t;
+/** failed to open the file */
+#define NPIO_EFOPEN 0x05
 
-/**
- * @brief 
- */
-typedef struct {
-    char *data;   
-    npy_shape_t shape;        
-    npio_size_t word_size;
-    npio_bool_t fortran_order;
-    npio_size_t num_vals;
-} npy_array_t;
+/** failed to write the file */
+#define NPIO_EFWRITE 0x06
 
-typedef struct {
-    char *key;       
-    npy_array_t value; 
-} npz_entry_t;
+/** buffer size is zero */
+#define NPIO_EBUF_SIZE_ZERO 0x07
 
-typedef struct {
-    npz_entry_t *entries; 
-    npio_size_t count;       
-} npz_t;
+/** null pointer to a buffer  */
+#define NPIO_EBUF_NULL 0x08
 
+/** buffer truncated */
+#define NPIO_EBUF_TRUNCATED 0x09
 
-/**
- * @brief Return a human readable string describing the specified error.
- * @param statcode The error code to get a string for.
- * @param buf A buffer to hold the error string.
- * @param bufsize Size of the buffer to hold the string.
- */
-char * npio_strerror(npio_status_t statcode, char *buf,
-                                 npio_size_t bufsize);
+/** null pointer to an npio array  */
+#define NPIO_EARR_NULL 0x000A
 
-/**
- * @brief 
- */
-npio_status_t npz_load(const char* pfname, npz_t* pnpz, npy_array_t* parray);
+/** dimension exceed allowed npio default */
+#define NPIO_EARR_DIM 0x000A
 
-/**
- * @brief
- */
-npio_status_t npz_var_load(const char* pfname, const char* pVarname, npy_array_t* parray);
+/** unknown error */
+#define NPIO_EUNKNOWN 0x0064
 
-/**
- * @brief
- */
-npio_status_t npy_load(const char* pfname, npy_array_t* parray);
+/** maximum number of npy array dimensions */
+#define NPY_ARRAY_DIM 8
 
-/**
- * @brief
- */
-npio_status_t npy_save(const char* pfname, const char* pdata, const npy_shape_t* pshape, const char* pmode);
+/** default buffer size for I/O  */
+#define NPIO_BUF_SIZE 256
 
+    /**
+     * @brief
+     */
+    typedef size_t npio_size_t;
 
-/**
- * @brief
- */
-npio_status_t npz_save(const char* pzipname, const char* pfname, const char* data,const npy_shape_t* pshape, const char* pmode);
+    /**
+     * @brief
+     */
+    typedef uint8_t npio_bool_t;
 
+    /**
+     * @brief
+     */
+    typedef uint16_t npio_uint16_t;
 
-/**
- * @brief
- */
-npio_status_t npy_init(const npy_shape_t* pshape, char* pheader);
+    /**
+     * @brief
+     */
+    typedef int npio_int_t;
 
+    /**
+     * @brief Type for specifying an error or status code.
+     */
+    typedef int npio_status_t;
 
-/**
- * @brief
- */
-npio_status_t npy_fs_read(FILE* fp,npio_size_t word_size, const npy_shape_t* pshape, npio_bool_t fortran_order);
+    /** NPY array shape type */
+    typedef struct
+    {
+        size_t shape[NPY_ARRAY_DIM];
+        size_t ndim;
+    } npy_shape_t;
 
-/**
- * @brief
- */
-npio_status_t npy_read(unsigned char* buffer,npio_size_t word_size, const npy_shape_t* pshape, npio_bool_t fortran_order);
+    /**
+     * @brief data type for numpy array object
+     */
+    typedef struct
+    {
+        char       *data;
+        npy_shape_t shape;
+        npio_size_t word_size;
+        npio_bool_t fortran_order;
+        npio_size_t num_vals;
+    } npy_array_t;
 
+    typedef struct
+    {
+        char       *key;
+        npy_array_t value;
+    } npz_entry_t;
 
-/**
- * @brief
- */
-npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_header_size, npio_size_t global_header_offset);
+    typedef struct
+    {
+        npz_entry_t *entries;
+        npio_size_t  count;
+    } npz_t;
 
-   
-    
+    /**
+     * @brief Return a human readable string describing the specified error.
+     * @param statcode The error code to get a string for.
+     * @param buf A buffer to hold the error string.
+     * @param bufsize Size of the buffer to hold the string.
+     * @return The number of characters that would have been written on the buffer, if buffsize had
+     * been sufficiently large. If an encoding error occurs, a negative number is returned.
+     */
+    int npio_strerror(npio_status_t statcode, char *buf, npio_size_t bufsize);
+
+    /**
+     * @brief convert a npio_status_t error code into a human readble string
+     * @return null pointer if the stacode not supported in npio error list
+     */
+    const char *npio_error_string(npio_status_t statcode);
+
+    /**
+     * @brief
+     * @param pfname
+     * @param parray pointer to npy_array_t object
+     *
+     */
+    npio_status_t npy_load(const char *pfname, npy_array_t *parray);
+
+    /**
+     * @brief read the array this function is mainly used by npy_load
+     * @param buffer
+     */
+    npio_status_t npy_read(unsigned char     *buffer,
+                           npio_size_t       *word_size,
+                           const npy_shape_t *pshape,
+                           npio_bool_t       *fortran_order);
+
+    /**
+     * @brief
+     */
+    npio_status_t
+    npy_save(const char *pfname, const char *pdata, const npy_shape_t *pshape, const char *pmode);
+
+    /**
+     * @brief
+     */
+    npio_status_t npy_init(const npy_shape_t *pshape, char *pheader);
+
+    /**
+     * @brief read an npy array from filesystem
+     */
+    npio_status_t npy_fs_read(FILE              *fp,
+                              npio_size_t        word_size,
+                              const npy_shape_t *pshape,
+                              npio_bool_t        fortran_order);
+
+    /**
+     * @brief load an .npz file into memmory, .npz file format is a zipped archive of files named
+     * after the variables they contain. this typcillay require zlib librray to read archive npy
+     * entries for more information about npz file format look into :
+     * https://numpy.org/doc/stable/reference/generated/numpy.savez_compressed.html
+     * @param pfname npz filename
+     * @param pnpz
+     * @param parray
+     */
+    npio_status_t npz_load(const char *pfname, npz_t *pnpz, npy_array_t *parray);
+
+    /**
+     * @brief load only a given encoded array from the npz file
+     */
+    npio_status_t npz_array_load(const char *pfname, const char *pvarname, npy_array_t *parray);
+
+    /**
+     * @brief
+     */
+    npio_status_t npz_save(const char        *pzipname,
+                           const char        *pfname,
+                           const char        *data,
+                           const npy_shape_t *pshape,
+                           const char        *pmode);
+
+    /**
+     * @brief
+     */
+    npio_status_t npio_zip_read(FILE         *fp,
+                                npio_uint16_t nrecs,
+                                npio_size_t   global_header_size,
+                                npio_size_t   global_header_offset);
 
     // char BigEndianTest();
     // char map_type(const std::type_info& t);
     // template<typename T> std::vector<char> create_npy_header(const std::vector<size_t>& shape);
-    // void parse_npy_header(FILE* fp,size_t& word_size, std::vector<size_t>& shape, bool& fortran_order);
-    // void parse_npy_header(unsigned char* buffer,size_t& word_size, std::vector<size_t>& shape, bool& fortran_order);
-    // void parse_zip_footer(FILE* fp, uint16_t& nrecs, size_t& global_header_size, size_t& global_header_offset);
-   
+    // void parse_npy_header(FILE* fp,size_t& word_size, std::vector<size_t>& shape, bool&
+    // fortran_order); void parse_npy_header(unsigned char* buffer,size_t& word_size,
+    // std::vector<size_t>& shape, bool& fortran_order); void parse_zip_footer(FILE* fp, uint16_t&
+    // nrecs, size_t& global_header_size, size_t& global_header_offset);
 
     // template<typename T> std::vector<char>& operator+=(std::vector<char>& lhs, const T rhs) {
     //     //write in little endian
     //     for(size_t byte = 0; byte < sizeof(T); byte++) {
-    //         char val = *((char*)&rhs+byte); 
+    //         char val = *((char*)&rhs+byte);
     //         lhs.push_back(val);
     //     }
     //     return lhs;
@@ -205,8 +267,8 @@ npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_he
     // template<> std::vector<char>& operator+=(std::vector<char>& lhs, const std::string rhs);
     // template<> std::vector<char>& operator+=(std::vector<char>& lhs, const char* rhs);
 
-
-    // template<typename T> void npy_save(std::string fname, const T* data, const std::vector<size_t> shape, std::string mode = "w") {
+    // template<typename T> void npy_save(std::string fname, const T* data, const
+    // std::vector<size_t> shape, std::string mode = "w") {
     //     FILE* fp = NULL;
     //     std::vector<size_t> true_data_shape; //if appending, the shape of existing + new data
 
@@ -220,18 +282,18 @@ npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_he
     //         assert(!fortran_order);
 
     //         if(word_size != sizeof(T)) {
-    //             std::cout<<"libnpy error: "<<fname<<" has word size "<<word_size<<" but npy_save appending data sized "<<sizeof(T)<<"\n";
-    //             assert( word_size == sizeof(T) );
+    //             std::cout<<"libnpy error: "<<fname<<" has word size "<<word_size<<" but npy_save
+    //             appending data sized "<<sizeof(T)<<"\n"; assert( word_size == sizeof(T) );
     //         }
     //         if(true_data_shape.size() != shape.size()) {
-    //             std::cout<<"libnpy error: npy_save attempting to append misdimensioned data to "<<fname<<"\n";
-    //             assert(true_data_shape.size() != shape.size());
+    //             std::cout<<"libnpy error: npy_save attempting to append misdimensioned data to
+    //             "<<fname<<"\n"; assert(true_data_shape.size() != shape.size());
     //         }
 
     //         for(size_t i = 1; i < shape.size(); i++) {
     //             if(shape[i] != true_data_shape[i]) {
-    //                 std::cout<<"libnpy error: npy_save attempting to append misshaped data to "<<fname<<"\n";
-    //                 assert(shape[i] == true_data_shape[i]);
+    //                 std::cout<<"libnpy error: npy_save attempting to append misshaped data to
+    //                 "<<fname<<"\n"; assert(shape[i] == true_data_shape[i]);
     //             }
     //         }
     //         true_data_shape[0] += shape[0];
@@ -251,7 +313,8 @@ npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_he
     //     fclose(fp);
     // }
 
-    // template<typename T> void npz_save(std::string zipname, std::string fname, const T* data, const std::vector<size_t>& shape, std::string mode = "w")
+    // template<typename T> void npz_save(std::string zipname, std::string fname, const T* data,
+    // const std::vector<size_t>& shape, std::string mode = "w")
     // {
     //     //first, append a .npy to the fname
     //     fname += ".npy";
@@ -268,14 +331,15 @@ npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_he
     //         //zip file exists. we need to add a new npy file to it.
     //         //first read the footer. this gives us the offset and size of the global header
     //         //then read and store the global header.
-    //         //below, we will write the the new data at the start of the global header then append the global header and footer below it
-    //         size_t global_header_size;
+    //         //below, we will write the the new data at the start of the global header then append
+    //         the global header and footer below it size_t global_header_size;
     //         parse_zip_footer(fp,nrecs,global_header_size,global_header_offset);
     //         fseek(fp,global_header_offset,SEEK_SET);
     //         global_header.resize(global_header_size);
     //         size_t res = fread(&global_header[0],sizeof(char),global_header_size,fp);
     //         if(res != global_header_size){
-    //             throw std::runtime_error("npz_save: header read error while adding to existing zip");
+    //             throw std::runtime_error("npz_save: header read error while adding to existing
+    //             zip");
     //         }
     //         fseek(fp,global_header_offset,SEEK_SET);
     //     }
@@ -317,8 +381,8 @@ npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_he
     //     global_header += (uint16_t) 0; //disk number where file starts
     //     global_header += (uint16_t) 0; //internal file attributes
     //     global_header += (uint32_t) 0; //external file attributes
-    //     global_header += (uint32_t) global_header_offset; //relative offset of local file header, since it begins where the global header used to begin
-    //     global_header += fname;
+    //     global_header += (uint32_t) global_header_offset; //relative offset of local file header,
+    //     since it begins where the global header used to begin global_header += fname;
 
     //     //build footer
     //     std::vector<char> footer;
@@ -329,8 +393,9 @@ npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_he
     //     footer += (uint16_t) (nrecs+1); //number of records on this disk
     //     footer += (uint16_t) (nrecs+1); //total number of records
     //     footer += (uint32_t) global_header.size(); //nbytes of global headers
-    //     footer += (uint32_t) (global_header_offset + nbytes + local_header.size()); //offset of start of global headers, since global header now starts after newly written array
-    //     footer += (uint16_t) 0; //zip file comment length
+    //     footer += (uint32_t) (global_header_offset + nbytes + local_header.size()); //offset of
+    //     start of global headers, since global header now starts after newly written array footer
+    //     += (uint16_t) 0; //zip file comment length
 
     //     //write everything
     //     fwrite(&local_header[0],sizeof(char),local_header.size(),fp);
@@ -341,19 +406,21 @@ npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_he
     //     fclose(fp);
     // }
 
-    // template<typename T> void npy_save(std::string fname, const std::vector<T> data, std::string mode = "w") {
+    // template<typename T> void npy_save(std::string fname, const std::vector<T> data, std::string
+    // mode = "w") {
     //     std::vector<size_t> shape;
     //     shape.push_back(data.size());
     //     npy_save(fname, &data[0], shape, mode);
     // }
 
-    // template<typename T> void npz_save(std::string zipname, std::string fname, const std::vector<T> data, std::string mode = "w") {
+    // template<typename T> void npz_save(std::string zipname, std::string fname, const
+    // std::vector<T> data, std::string mode = "w") {
     //     std::vector<size_t> shape;
     //     shape.push_back(data.size());
     //     npz_save(zipname, fname, &data[0], shape, mode);
     // }
 
-    // template<typename T> std::vector<char> create_npy_header(const std::vector<size_t>& shape) {  
+    // template<typename T> std::vector<char> create_npy_header(const std::vector<size_t>& shape) {
 
     //     std::vector<char> dict;
     //     dict += "{'descr': '";
@@ -368,8 +435,8 @@ npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_he
     //     }
     //     if(shape.size() == 1) dict += ",";
     //     dict += "), }";
-    //     //pad with spaces so that preamble+dict is modulo 16 bytes. preamble is 10 bytes. dict needs to end with \n
-    //     int remainder = 16 - (10 + dict.size()) % 16;
+    //     //pad with spaces so that preamble+dict is modulo 16 bytes. preamble is 10 bytes. dict
+    //     needs to end with \n int remainder = 16 - (10 + dict.size()) % 16;
     //     dict.insert(dict.end(),remainder,' ');
     //     dict.back() = '\n';
 
@@ -384,9 +451,8 @@ npio_status_t npio_zip_read(FILE* fp, npio_uint16_t nrecs, npio_size_t global_he
     //     return header;
     // }
 
-
 #ifdef __cplusplus
-} 
+}
 #endif
 
 #endif // NPIO_H
