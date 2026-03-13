@@ -108,6 +108,11 @@ npy_array_t *npy_array_create(const npio_size_t *dims,
                               npio_size_t        word_size,
                               npio_bool_t        fortran_order)
 {
+    if (dims == NULL)
+    {
+        return NULL;
+    }
+
     if (ndim == (npio_size_t) 0)
     {
         return NULL;

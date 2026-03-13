@@ -8,13 +8,9 @@
 ![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
 [![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
 
-- [3.0 Documenation](#30-documenation)
-  - [3.1 Generate documenation](#31-generate-documenation)
-- [4.0 License](#40-license)
+**npio** is a C99 version of [cnpy](https://github.com/rogersce/cnpy), written by [Carl Rogers](https://github.com/rogersce). It is a library for reading and writing [NumPy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) **.npy** and **.npz** files, which is no longer actively maintained.
 
-`npio` is a C99 version of [cnpy](https://github.com/rogersce/cnpy), written by [Carl Rogers](https://github.com/rogersce). It is a library for reading and writing [NumPy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) `.npy` and `.npz` files, which is no longer actively maintained.
-
-NumPy provides the `save` method for saving arrays into `.npy` files and `savez` for zipping multiple `.npy` arrays together into a `.npz` file.`npio` allows you to read and write these formats in C99.  
+[NumPy]() provides the save method for saving arrays into .npy files and savez for zipping multiple .npy arrays together into a .npz file. npio allows you to read and write these formats in C or C++
 
 Please feel free to open an issue. I will try to address any concerns as best I can.
 
@@ -81,19 +77,18 @@ meson test
 > [!NOTE] 
 > Bazel tests are not yet supported. Use [cmake](#11-cmake) or [meson](#12-menson) to run tests
 
-
 ## 3.0 Documenation 
 
 All API documentation can be found [here]()
 
 ### 3.1 Generate documenation
 
-npio uses [Sphinx]() alongside [Doxygen]() to generate documentation.
+Npio uses [Sphinx]() alongside [Doxygen]() to generate documentation.
 
 
 ## 4.0 License 
 
 All material is provided under MIT License unless otherwise specified.
 
-see the [LICENSE](LICENSE) file for more details
+See the [LICENSE](LICENSE) file for more details
 
