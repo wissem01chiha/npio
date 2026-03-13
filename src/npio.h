@@ -43,6 +43,23 @@
 #ifndef NPIO_H
 #define NPIO_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
+
+    /*==================================================================================================
+    *                                SOURCE FILE VERSION INFORMATION
+    ==================================================================================================*/
+
+#define NPIO_VERSION_MAJOR 0
+#define NPIO_VERSION_MINOR 1
+#define NPIO_VERSION_PATCH 0
+
+    /*==================================================================================================
+    *                                          INCLUDE FILES
+    ==================================================================================================*/
+
 #include <zlib.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -52,14 +69,13 @@
 #include <stdint.h>
 #include <errno.h>
 
-#define NPIO_VERSION_MAJOR 0
-#define NPIO_VERSION_MINOR 1
-#define NPIO_VERSION_PATCH 0
+/*==================================================================================================
+*                                            CONSTANTS
+==================================================================================================*/
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif /* __cplusplus */
+/*==================================================================================================
+*                                        DEFINES AND MACROS
+==================================================================================================*/
 
 /** no error. */
 #define NPIO_OK 0x00
@@ -106,41 +122,37 @@ extern "C"
 /** default buffer size for I/O  */
 #define NPIO_BUF_SIZE 256
 
-    /**
-     * @brief
-     */
+    /*==================================================================================================
+    *                                              ENUMS
+    ==================================================================================================*/
+
+    /*==================================================================================================
+    *                                  STRUCTURES AND OTHER TYPEDEFS
+    ==================================================================================================*/
+
+    /** @brief   */
     typedef size_t npio_size_t;
 
-    /**
-     * @brief
-     */
+    /** @brief   */
     typedef uint8_t npio_bool_t;
 
-    /**
-     * @brief
-     */
+    /** @brief   */
     typedef uint16_t npio_uint16_t;
 
-    /**
-     * @brief
-     */
+    /** @brief   */
     typedef int npio_int_t;
 
-    /**
-     * @brief Type for specifying an error or status code.
-     */
+    /** @brief Type for specifying an error or status code.*/
     typedef int npio_status_t;
 
-    /** NPY array shape type */
+    /** @brief Npy array shape type */
     typedef struct
     {
         size_t shape[NPY_ARRAY_DIM];
         size_t ndim;
     } npy_shape_t;
 
-    /**
-     * @brief data type for numpy array object
-     */
+    /** @brief Data type for numpy array object */
     typedef struct
     {
         char       *data;
@@ -150,17 +162,27 @@ extern "C"
         npio_size_t num_vals;
     } npy_array_t;
 
+    /** @brief  Array Mapping in npz archive */
     typedef struct
     {
         char       *key;
         npy_array_t value;
     } npz_entry_t;
 
+    /** @brief Npz file entries mapping */
     typedef struct
     {
         npz_entry_t *entries;
         npio_size_t  count;
     } npz_t;
+
+    /*==================================================================================================
+    *                                  GLOBAL VARIABLE DECLARATIONS
+    ==================================================================================================*/
+
+    /*==================================================================================================
+    *                                      FUNCTION PROTOTYPES
+    ==================================================================================================*/
 
     /**
      * @brief Return a human readable string describing the specified error.
@@ -173,21 +195,43 @@ extern "C"
     int npio_strerror(npio_status_t statcode, char *buf, npio_size_t bufsize);
 
     /**
-     * @brief convert a npio_status_t error code into a human readble string
+     * @brief Convert a npio_status_t error code into a human readble string
+     * @param statcode
      * @return null pointer if the stacode not supported in npio error list
      */
     const char *npio_error_string(npio_status_t statcode);
 
     /**
-     * @brief
+     * @brief Allocator for npy_array_t object
+     * @param dims Array of ndim elements each elment is the size of the array along one axis,
+     * all values should be >=1 , 0 dimonsions are not allowed in numpy
+     * @param ndim Number of array dimensions, must be also >= 1
+     * @param word_size The size in bytes of one element (per value) in the array.
+     * @param fortran_order array memory layout, numpy usully defaults to 0, c-order, else
+     * specified, default in npio librray is also 0
+     * @return Pointer to allocated structure
+     * @note if a non valid dimonsion value , or number of dims is 0 a null ptr is
+     * returned
+     */
+    npy_array_t *npy_array_create(const npio_size_t *dims,
+                                  npio_size_t        ndim,
+                                  npio_size_t        word_size,
+                                  npio_bool_t        fortran_order);
+
+    /**
+     * @brief  Destructor for npy_array_t object
+     */
+    void npy_array_destroy(npy_array_t *arr);
+
+    /**
+     * @brief Load an npy array into memory
      * @param pfname
      * @param parray pointer to npy_array_t object
-     *
      */
     npio_status_t npy_load(const char *pfname, npy_array_t *parray);
 
     /**
-     * @brief read the array this function is mainly used by npy_load
+     * @brief Read the array this function is mainly used by npy_load
      * @param buffer
      */
     npio_status_t npy_read(unsigned char     *buffer,
@@ -196,15 +240,10 @@ extern "C"
                            npio_bool_t       *fortran_order);
 
     /**
-     * @brief
+     * @brief Save an npy_array_t base object to *.npy file
+     * @param pfname filename
      */
-    npio_status_t
-    npy_save(const char *pfname, const char *pdata, const npy_shape_t *pshape, const char *pmode);
-
-    /**
-     * @brief
-     */
-    npio_status_t npy_init(const npy_shape_t *pshape, char *pheader);
+    npio_status_t npy_save(npy_array_t *parray, const char *pfname);
 
     /**
      * @brief read an npy array from filesystem

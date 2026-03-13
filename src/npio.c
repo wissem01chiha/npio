@@ -60,7 +60,6 @@ static const struct
     {NPIO_EARR_DIM, "Dimension exceed allowed"},
     {NPIO_EFOPEN, "Failed to open the file"},
     {NPIO_EUNKNOWN, "Unknown error"},
-
 };
 
 int npio_strerror(npio_status_t statcode, char *buf, npio_size_t bufsize)
@@ -80,7 +79,7 @@ int npio_strerror(npio_status_t statcode, char *buf, npio_size_t bufsize)
         if (statcode == gaErrorList[i].code)
         {
             int s = snprintf(buf, bufsize, "%s", gaErrorList[i].msg);
-            if (s > bufsize)
+            if ((npio_size_t) s > bufsize)
             {
                 return NPIO_EBUF_TRUNCATED;
             }
@@ -102,6 +101,62 @@ const char *npio_error_string(npio_status_t statcode)
         }
     }
     return NULL;
+}
+
+npy_array_t *npy_array_create(const npio_size_t *dims,
+                              npio_size_t        ndim,
+                              npio_size_t        word_size,
+                              npio_bool_t        fortran_order)
+{
+    if (ndim == (npio_size_t) 0)
+    {
+        return NULL;
+    }
+
+    npy_array_t *arr = malloc(sizeof(npy_array_t));
+
+    if (arr == NULL)
+    {
+        return NULL;
+    }
+
+    arr->shape.ndim = ndim;
+    for (npio_size_t i = 0; i < ndim; i++)
+    {
+        if (dims[i] == (npio_size_t) 0)
+        {
+            return NULL;
+        }
+        arr->shape.shape[i] = dims[i];
+    }
+
+    npio_size_t num_vals = 1;
+    for (npio_size_t i = 0; i < ndim; i++)
+    {
+        num_vals *= dims[i];
+    }
+
+    arr->word_size     = word_size;
+    arr->fortran_order = fortran_order;
+    arr->num_vals      = num_vals;
+    arr->data          = malloc(num_vals * word_size);
+
+    if (arr->data == NULL)
+    {
+        free(arr);
+        return NULL;
+    }
+
+    return arr;
+}
+
+void npy_array_destroy(npy_array_t *arr)
+{
+    if (!arr)
+        return;
+
+    free(arr->data);
+    free(arr);
 }
 
 npio_status_t npy_load(const char *pfname, npy_array_t *parray)
@@ -131,6 +186,9 @@ npio_status_t npy_load(const char *pfname, npy_array_t *parray)
         return NPIO_EUNKNOWN;
     }
 
+    printf("%s", pheader);
+    npio_size_t loc1, loc2;
+
     return NPIO_OK;
 }
 
@@ -147,14 +205,13 @@ npio_status_t npy_read(unsigned char     *buffer,
     return NPIO_OK;
 }
 
-npio_status_t
-npy_save(const char *pfname, const char *pdata, const npy_shape_t *pshape, const char *pmode)
+npio_status_t npy_save(npy_array_t *parray, const char *pfname)
 {
-    return NPIO_OK;
-}
+    if (parray == NULL)
+    {
+        return NPIO_EARR_NULL;
+    }
 
-npio_status_t npy_init(const npy_shape_t *pshape, char *pheader)
-{
     return NPIO_OK;
 }
 

@@ -1,29 +1,75 @@
-# This file is part of npio library.
-# menson is supported paratilly , official supported build systems are cmake and bazel
-# meson.build require meson >= 0.47.0 and zlib >= 1.2.11 installed
-# on host system
-project('npio', 'c',
-  version : '0.1',
-  default_options : ['warning_level=3'])
-
-sources = [
-  'npio.c'
-]
-
-npio = library('npio', sources,
-  install : true
+project('npio',
+  'c',
+  version        : '0.1.0',
+  license        : 'MIT',
+  meson_version  : '>=0.61.2',
+  default_options : ['warning_level=3']
 )
 
-test_sources = [
-  'test/example.c'
+build_shared = get_option('build_shared')
+build_docs = get_option('build_docs')
+build_tests = get_option('build_tests')
+
+sources = [
+  'src/npio.h', 'src/npio.c'
 ]
 
-if get_option('test').enabled()
+incdir = include_directories('src', 'subprojects/zlib-1.3.2')
+zdep = dependency('zlib',
+ version : '>=1.2.8',
+ required : true,
+ fallback : ['zlib', 'zlib_dep']
+)
+
+if build_shared
+  npio = shared_library(
+    meson.project_name(), 
+    sources,
+    dependencies : zdep,
+    install: not meson.is_subproject(),
+  )
+endif
+
+npio = static_library(
+  meson.project_name(),
+  sources,
+  dependencies : zdep,
+  install: not meson.is_subproject(),
+)
+
+if build_tests
+
+  test_sources = [
+  'test/test_npio_strerror.c',
+  'test/test_npy_array_create.c'
+  ]
+
+  unity_proj = subproject('unity')   
+  unity_dep = unity_proj.get_variable('unity_dep')
+
   foreach t : test_sources
     testname = t.split('/')[-1].split('.')[0]
     exe = executable(testname, t,
-      link_with : npio
+      link_with : npio,
+      dependencies : unity_dep,
+      include_directories : incdir
     )
     test(testname, exe)
   endforeach
 endif 
+
+# Generate documenation files.
+if build_docs
+
+endif
+
+# Generate pkg-config file.
+if not meson.is_subproject()
+  pkg = import('pkgconfig')
+  pkg.generate(
+    name: meson.project_name(),
+    version: meson.project_version(),
+    libraries: [ meson.project_name() ],
+    description: 'NUMPY NPY/NPZ File I/O Library'
+  )
+endif

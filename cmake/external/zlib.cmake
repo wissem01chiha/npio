@@ -6,8 +6,7 @@ else()
     include(FetchContent)
     FetchContent_Declare(
         zlib
-        GIT_REPOSITORY https://github.com/madler/zlib.git
-        GIT_TAG master    
+        URL https://github.com/madler/zlib/releases/download/v1.3.2/zlib132.zip 
     )
     set(ZLIB_BUILD_SHARED OFF)
     set(ZLIB_BUILD_TESTING OFF)

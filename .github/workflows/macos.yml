@@ -1,4 +1,4 @@
-name: Ubuntu
+name: macos
 
 on:
   push:
@@ -7,42 +7,32 @@ on:
     branches: [ "**" ]
 
 env:
-  BUILD_TYPE: Debug
+  BUILD_TYPE: Release
 
 jobs:
   cmake:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 80
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: Ubuntu GCC Default
-            os: ubuntu-latest
-            compiler: gcc
-            cxx-compiler: g++
-            cmake-args: ""
-            coverage: ubuntu_gcc
-
-          - name: Ubuntu Clang Default
-            os: ubuntu-latest
+          - name: macOS Clang Default
+            os: macos-latest
             compiler: clang
             cxx-compiler: clang++
             cmake-args: ""
-            coverage: ubuntu_clang
+            coverage: macos_clang
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y build-essential clang
 
     - name: Configure CMake
       run: |
         export CC=${{ matrix.compiler }}
         export CXX=${{ matrix.cxx-compiler }}
-        cmake -B ${{ github.workspace }}/build \
+        cmake -B ${{ github.workspace }}/build -S ${{ github.workspace }} \
               -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
               ${{ matrix.cmake-args }}
 

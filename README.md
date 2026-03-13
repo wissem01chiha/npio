@@ -7,68 +7,104 @@
 ![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
 [![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
 
-
 - [1.0 Installation](#10-installation)
-- [2.0 Using](#20-using)
-- [3.0 Description](#30-description)
-  - [4.0 License](#40-license)
+  - [1.1 Binary Release](#11-binary-release)
+  - [1.2 Build from Source](#12-build-from-source)
+    - [1.2.1 CMake](#121-cmake)
+  - [1.2.2 Menson](#122-menson)
+  - [1.2.3 Bazel](#123-bazel)
+- [2.0 Testing](#20-testing)
+  - [2.1 CMake](#21-cmake)
+  - [2.2 Meson](#22-meson)
+  - [2.3 Bazel](#23-bazel)
+- [3.0 Documenation](#30-documenation)
+  - [3.1 Generate documenation](#31-generate-documenation)
+- [4.0 License](#40-license)
 
-npio is a C99 version of [cnpy](https://github.com/rogersce/cnpy) writtin by Carl Rogers librray for reading/writing [numpy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) npy and npz files which is not actively maintained.
+`npio` is a C99 version of [cnpy](https://github.com/rogersce/cnpy), written by [Carl Rogers](https://github.com/rogersce). It is a library for reading and writing [NumPy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) `.npy` and `.npz` files, which is no longer actively maintained.
 
+NumPy provides the `save` method for saving arrays into `.npy` files and `savez` for zipping multiple `.npy` arrays together into a `.npz` file.  
 
-NumPy offers the `save` method for easy saving of arrays into .npy and `savez` for zipping multiple .npy arrays together into a .npz file. 
+`npio` allows you to read and write these formats in C99.  
 
-`cnpy` lets you read and write to these formats in C++. 
-
-The motivation comes from scientific programming where large amounts of data are generated in C++ and analyzed in Python.
-
-Writing to .npy has the advantage of using low-level C++ I/O (fread and fwrite) for speed and binary format for size. 
-The .npy file header takes care of specifying the size, shape, and data type of the array, so specifying the format of the data is unnecessary.
-
-Loading data written in numpy formats into C++ is equally simple, but requires you to type-cast the loaded data to the type of your choice.
+Please feel free to open an issue. I will try to address any concerns as best I can.
 
 # 1.0 Installation
 
-Default installation directory is /usr/local. 
-To specify a different directory, add `-DCMAKE_INSTALL_PREFIX=/path/to/install/dir` to the cmake invocation in step 4.
+## 1.1 Binary Release
 
-1. get [cmake](www.cmake.org)
-2. create a build directory, say $HOME/build
-3. cd $HOME/build
-4. cmake /path/to/cnpy
-5. make
-6. make install
+## 1.2 Build from Source
 
-# 2.0 Using
+### 1.2.1 CMake 
 
-To use, `#include"cnpy.h"` in your source code. Compile the source code mycode.cpp as
+[CMake](https://cmake.org) 3.24 or higher is required.  
 
-```bash
-g++ -o mycode mycode.cpp -L/path/to/install/dir -lcnpy -lz --std=c++11
+The default installation directory is `/usr/local`.  
+To specify a different directory, add `-DCMAKE_INSTALL_PREFIX=/path/to/install/dir` to the CMake invocation in step 4.
+
+1. Clone the repository:
+  ```shell
+   git clone https://github.com/wissem01chiha/npio
+  ```
+2. - Configure the build: 
+  ```shell
+  cmake -B build -DCMAKE_INSTALL_PREFIX=~/build/install
+  ```
+3. - Build and install:
+  ```shell
+  ninja install
+  ```
+
+## 1.2.2 Menson 
+
+Meson >= 1.10.0 is required. For more information, refer to [Quick-guide](https://mesonbuild.com/Quick-guide.html) 
+
+  ```shell
+  meson setup builddir 
+  cd builddir 
+  meson compile 
+  ```
+
+Then install the library using: 
+
+  ```shell
+  meson install
+  ```
+
+## 1.2.3 Bazel 
+
+> [NOTE] Note: Bazel is not yet supported. Please use [cmake](#11-cmake) or [meson](#12-menson) instead.
+
+
+# 2.0 Testing
+
+## 2.1 CMake 
+
+## 2.2 Meson 
+
+To run project tests:
+
+```shell
+meson test 
 ```
 
-# 3.0 Description
+## 2.3 Bazel 
 
-There are two functions for writing data: `npy_save` and `npz_save`.
+> [NOTE] Note: Bazel tests are not yet supported. Use [cmake](#11-cmake) or [meson](#12-menson) to run tests
 
-There are 3 functions for reading:
-- `npy_load` will load a .npy file. 
-- `npz_load(fname)` will load a .npz and return a dictionary of NpyArray structues. 
-- `npz_load(fname,varname)` will load and return the NpyArray for data varname from the specified .npz file.
 
-The data structure for loaded data is below. 
-Data is accessed via the `data<T>()`-method, which returns a pointer of the specified type (which must match the underlying datatype of the data). 
-The array shape and word size are read from the npy header.
+# 3.0 Documenation 
 
-```c++
-struct NpyArray {
-    std::vector<size_t> shape;
-    size_t word_size;
-    template<typename T> T* data();
-};
-```
+All API documentation can be found [here]()
 
-See [example](/example/) folder for examples of how to use the library.
+## 3.1 Generate documenation
 
-## 4.0 License 
+npio uses [Sphinx]() alongside [Doxygen]() to generate documentation.
+
+
+# 4.0 License 
+
+All material is provided under MIT License unless otherwise specified.
+
+see the [LICENSE](LICENSE) file for more details
 

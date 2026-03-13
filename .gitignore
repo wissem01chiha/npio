@@ -47,10 +47,17 @@
 *.cmd
 
 
-# debug information files
+# Debug information files
 *.dwo
 
+# Build output
 build/
 builddir/
 .vs/
 out/
+
+# Meson files
+subprojects/packagecache/
+subprojects/zlib-1.3.2
+subprojects/unity
+subprojects/.wraplock
