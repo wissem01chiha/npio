@@ -1,4 +1,4 @@
-name: Docs
+name: Documenation
 on:
   push:
     branches: ["main"]
@@ -12,30 +12,31 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install Doxygen
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Sphinx and furo theme
         run: |
-          sudo apt-get update 
-          sudo apt-get install -y doxygen
-
-      - name: Install Graphviz
-        run: sudo apt-get install -y graphviz
+          pip install sphinx furo
       
-      - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -DSLXIO_CLI=OFF -DSLXIO_BUILD_DOCUMENTATION=ON -DSLXIO_BUILD_TESTS=OFF 
-
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build 
+      - name: Build Documentation
+        run: |
+          ./docs/make.bat html docs docs/build/html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{github.workspace}}/build/doc/html
+          path: docs/build/html
 
       - name: Deploy to GitHub Pages
         id: deployment

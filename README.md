@@ -3,6 +3,7 @@
 
 [![Ubuntu](https://github.com/wissem01chiha/npio/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/ubuntu.yml)
 [![macos](https://github.com/wissem01chiha/npio/actions/workflows/macos.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/macos.yml)
+[![Meson CI](https://github.com/wissem01chiha/npio/actions/workflows/meson.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/meson.yml)
 [![CodeQL](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml)
 [![Docs](https://github.com/wissem01chiha/npio/actions/workflows/docs.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/docs.yml)
 ![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
