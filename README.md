@@ -14,15 +14,15 @@
 
 Please feel free to open an issue. I will try to address any concerns as best I can.
 
-### Documenation 
+## Documenation 
 
 All API documentation can be found [here]()
 
-### Contributing
+## Contributing
 
 The project is under active development, and contributions are highly encouraged.If you are interested in collaborating, please contact the maintainer via [email](chihawissem08@gmail.com)
 
-### License 
+## License 
 
 All material is provided under MIT License unless otherwise specified.
 
