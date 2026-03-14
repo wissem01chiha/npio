@@ -14,7 +14,7 @@ sources = [
   'src/npio.h', 'src/npio.c'
 ]
 
-incdir = include_directories('src', 'subprojects/zlib-1.3.2')
+incdir = include_directories('src')
 zdep = dependency('zlib',
  version : '>=1.2.8',
  required : true,
@@ -72,7 +72,7 @@ if build_tests
     testname = t.split('/')[-1].split('.')[0]
     exe = executable(testname, t,
       link_with : npio,
-      dependencies : unity_dep,
+      dependencies : [unity_dep, zdep],
       include_directories : incdir
     )
     test(testname, exe)
