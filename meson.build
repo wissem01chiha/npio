@@ -2,7 +2,7 @@ project('npio',
   'c',
   version        : '0.1.0',
   license        : 'MIT',
-  meson_version  : '>=0.61.2',
+  meson_version  : '>=0.64.0',
   default_options : ['warning_level=3']
 )
 
@@ -40,9 +40,30 @@ npio = static_library(
 if build_tests
 
   test_sources = [
-  'test/test_npio_strerror.c',
-  'test/test_npy_array_create.c'
+    'test/test_npio_strerror.c',
+    'test/test_np_array_create.c',
+    'test/test_npy_fopen.c',
+    'test/test_npy_fread.c',
+    'test/test_npy_fwrite.c',
+    'test/test_npy_read.c'
   ]
+
+  fs = import('fs')
+
+  test_data = [
+    'bool_2x2.npy',
+    'complex64_3x3.npy',
+    'float32_4x4.npy',
+    'int8_1x2x3.npy',
+    'int16_range.npy',
+  ]
+
+  foreach f : test_data
+    fs.copyfile(
+      meson.current_source_dir() / 'test' / 'data' / f,
+      f    
+    )
+  endforeach
 
   unity_proj = subproject('unity')   
   unity_dep = unity_proj.get_variable('unity_dep')
@@ -58,12 +79,10 @@ if build_tests
   endforeach
 endif 
 
-# Generate documenation files.
 if build_docs
 
 endif
 
-# Generate pkg-config file.
 if not meson.is_subproject()
   pkg = import('pkgconfig')
   pkg.generate(

@@ -72,15 +72,22 @@ if(NPIO_BUILD_TESTS)
 
   set(npio_test_sources 
     test/test_npio_strerror.c
-    test/test_npy_array_create.c
-    test/test_npy_load.c
-    test/test_npy_save.c
-    test/test_npz_load.c
+    test/test_np_array_create.c
+    test/test_npy_fopen.c
+    test/test_npy_fread.c
+    test/test_npy_fwrite.c
+    test/test_npy_read.c
   )
 
   include(CTest)
   enable_testing()
   include(cmake/external/unity.cmake)
+
+  file(GLOB TEST_DATA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test/data/*")
+  foreach(f ${TEST_DATA_FILES})
+    get_filename_component(fname ${f} NAME)
+    configure_file(${f} ${CMAKE_CURRENT_BINARY_DIR}/${fname} COPYONLY)
+  endforeach()
 
   foreach(npio_test_source IN LISTS npio_test_sources)
 
@@ -92,7 +99,7 @@ if(NPIO_BUILD_TESTS)
     )
     add_test (NAME ${npio_test_bin} 
       COMMAND ${npio_test_bin}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
     if(NPIO_BUILD_SHARED)

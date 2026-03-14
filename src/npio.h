@@ -18,26 +18,6 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-
-    Copyright (c) Carl Rogers, 2011
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
 */
 
 #ifndef NPIO_H
@@ -111,7 +91,13 @@ extern "C"
 #define NPIO_EARR_NULL 0x000A
 
 /** dimension exceed allowed npio default */
-#define NPIO_EARR_DIM 0x000A
+#define NPIO_EARR_DIM 0x000B
+
+/** null pointer to an npy file descriptor */
+#define NPIO_ENPY_NULL 0x000C
+
+/** attempted to read an npy file before it was opened */
+#define NPIO_EUNOPENED 0x000D
 
 /** unknown error */
 #define NPIO_EUNKNOWN 0x0064
@@ -130,20 +116,33 @@ extern "C"
     *                                  STRUCTURES AND OTHER TYPEDEFS
     ==================================================================================================*/
 
-    /** @brief   */
+    /** @brief alias for size_t used in APIs */
     typedef size_t npio_size_t;
 
-    /** @brief   */
+    /** @brief boolean type for npio  */
     typedef uint8_t npio_bool_t;
 
-    /** @brief   */
+    /** @brief unsigned 16‑bit integer type for npio */
     typedef uint16_t npio_uint16_t;
 
-    /** @brief   */
+    /** @brief general integer type for npio */
     typedef int npio_int_t;
 
     /** @brief Type for specifying an error or status code.*/
     typedef int npio_status_t;
+
+    /** @brief Low level Npy file descriptor  */
+    typedef struct
+    {
+        FILE  *fp;
+        int    version_major;
+        int    version_minor;
+        char   dtype[32];
+        int    fortran_order;
+        size_t ndim;
+        size_t shape[NPY_ARRAY_DIM];
+        size_t header_len;
+    } npy_file_t;
 
     /** @brief Npy array shape type */
     typedef struct
@@ -152,7 +151,7 @@ extern "C"
         size_t ndim;
     } npy_shape_t;
 
-    /** @brief Data type for numpy array object */
+    /** @brief Numpy array data descriptor */
     typedef struct
     {
         char       *data;
@@ -160,13 +159,13 @@ extern "C"
         npio_size_t word_size;
         npio_bool_t fortran_order;
         npio_size_t num_vals;
-    } npy_array_t;
+    } np_array_t;
 
     /** @brief  Array Mapping in npz archive */
     typedef struct
     {
-        char       *key;
-        npy_array_t value;
+        char      *key;
+        np_array_t value;
     } npz_entry_t;
 
     /** @brief Npz file entries mapping */
@@ -196,13 +195,21 @@ extern "C"
 
     /**
      * @brief Convert a npio_status_t error code into a human readble string
-     * @param statcode
+     * @param statcode Pointer to the status code.
      * @return null pointer if the stacode not supported in npio error list
      */
     const char *npio_error_string(npio_status_t statcode);
 
     /**
-     * @brief Allocator for npy_array_t object
+     * @brief Prints a human readable description of an npio error status.
+     * @param statcode npio status code.
+     * @return void
+     * @note This used mainly for debug puropse
+     */
+    void npio_error_printf(npio_status_t statcode);
+
+    /**
+     * @brief Allocator for np_array_t object
      * @param dims Array of ndim elements each elment is the size of the array along one axis,
      * all values should be >=1 , 0 dimonsions are not allowed in numpy
      * @param ndim Number of array dimensions, must be also >= 1
@@ -213,45 +220,71 @@ extern "C"
      * @note if a non valid dimonsion value , or number of dims is 0 a null ptr is
      * returned
      */
-    npy_array_t *npy_array_create(const npio_size_t *dims,
-                                  npio_size_t        ndim,
-                                  npio_size_t        word_size,
-                                  npio_bool_t        fortran_order);
+    np_array_t *np_array_create(const npio_size_t *dims,
+                                npio_size_t        ndim,
+                                npio_size_t        word_size,
+                                npio_bool_t        fortran_order);
 
     /**
-     * @brief  Destructor for npy_array_t object
+     * @brief  Destructor for np_array_t object
+     * @param arr pointer to np_array_t
+     * @return void
      */
-    void npy_array_destroy(npy_array_t *arr);
+    void np_array_delete(np_array_t *arr);
 
     /**
-     * @brief Load an npy array into memory
-     * @param pfname
-     * @param parray pointer to npy_array_t object
+     * @brief Allocator for npy_file_t object
+     * @return a pointer to a newly allocted npy_file structure
      */
-    npio_status_t npy_load(const char *pfname, npy_array_t *parray);
+    npy_file_t *npy_file_create(void);
 
     /**
-     * @brief Read the array this function is mainly used by npy_load
-     * @param buffer
+     * @brief Destructor for npy_file_t object
      */
-    npio_status_t npy_read(unsigned char     *buffer,
-                           npio_size_t       *word_size,
-                           const npy_shape_t *pshape,
-                           npio_bool_t       *fortran_order);
+    void npy_file_delete(npy_file_t *f);
 
     /**
-     * @brief Save an npy_array_t base object to *.npy file
-     * @param pfname filename
+     * @brief Open an Npy file for reading.
+     * @param pfname Path to the file on disk.
+     * @param statcode Pointer to the status code.
+     * @return Pointer to an npy_file_t structure on success, or NULL on failure.
+     * @note If an error occurs while opening or reading the file, statcode is set to
+     * NPIO_EFOPEN
+     * @warning this function only affect the filesystem handle of nyp_file_t, for reading the
+     * complete file metadata use npy_fread()
      */
-    npio_status_t npy_save(npy_array_t *parray, const char *pfname);
+    npy_file_t *npy_fopen(const char *pfname, npio_status_t *statcode);
 
     /**
-     * @brief read an npy array from filesystem
+     * @brief Read an numpy array from npy file descriptor
+     * @param pnpy pointer to an np_file_t object
+     * @return error status flag
+     * @note the file shouled be opened using npy_file_open, if not opened, an NPIO_EUNOPENED is
+     * retuned
      */
-    npio_status_t npy_fs_read(FILE              *fp,
-                              npio_size_t        word_size,
-                              const npy_shape_t *pshape,
-                              npio_bool_t        fortran_order);
+    npio_status_t npy_fread(npy_file_t *pnpy);
+
+    /**
+     * @brief Read a np_array_t object base from npy file 
+     * @param pnpy pointer to a npy file struct
+     * @param statcode Pointer to the status code.
+     * @note the file shoule be already open and valid
+     * @return a pointer to newlly allocated data struct
+     */
+    np_array_t* npy_read(npy_file_t *pnpy,npio_status_t *statcode);
+
+    /**
+     * @brief Write an npy_file_t base object  to *.npy file on disk
+     * @param pnpy pointer to an np_file_t object
+     * @param pfname pointer to file
+     * @return error status flag
+     * @note for reading an npy file from disk see npy_fread
+     */
+    npio_status_t npy_fwrite(npy_file_t *pnpy, const char *pfname);
+
+
+
+
 
     /**
      * @brief load an .npz file into memmory, .npz file format is a zipped archive of files named
@@ -262,12 +295,12 @@ extern "C"
      * @param pnpz
      * @param parray
      */
-    npio_status_t npz_load(const char *pfname, npz_t *pnpz, npy_array_t *parray);
+    npio_status_t npz_load(const char *pfname, npz_t *pnpz, np_array_t *parray);
 
     /**
      * @brief load only a given encoded array from the npz file
      */
-    npio_status_t npz_array_load(const char *pfname, const char *pvarname, npy_array_t *parray);
+    npio_status_t npz_array_load(const char *pfname, const char *pvarname, np_array_t *parray);
 
     /**
      * @brief

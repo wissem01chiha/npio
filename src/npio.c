@@ -18,26 +18,6 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-
-    Copyright (c) Carl Rogers, 2011
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
 */
 
 #include "npio.h"
@@ -59,6 +39,8 @@ static const struct
     {NPIO_EARR_NULL, "Null pointer to array"},
     {NPIO_EARR_DIM, "Dimension exceed allowed"},
     {NPIO_EFOPEN, "Failed to open the file"},
+    {NPIO_ENPY_NULL, "Null pointer to an npy file"},
+    {NPIO_EUNOPENED, "Attempted to read an npy file before it was opened"},
     {NPIO_EUNKNOWN, "Unknown error"},
 };
 
@@ -103,10 +85,15 @@ const char *npio_error_string(npio_status_t statcode)
     return NULL;
 }
 
-npy_array_t *npy_array_create(const npio_size_t *dims,
-                              npio_size_t        ndim,
-                              npio_size_t        word_size,
-                              npio_bool_t        fortran_order)
+void npio_error_printf(npio_status_t statcode)
+{
+    printf("%s\n", npio_error_string(statcode));
+}
+
+np_array_t *np_array_create(const npio_size_t *dims,
+                            npio_size_t        ndim,
+                            npio_size_t        word_size,
+                            npio_bool_t        fortran_order)
 {
     if (dims == NULL)
     {
@@ -118,7 +105,7 @@ npy_array_t *npy_array_create(const npio_size_t *dims,
         return NULL;
     }
 
-    npy_array_t *arr = malloc(sizeof(npy_array_t));
+    np_array_t *arr = malloc(sizeof(np_array_t));
 
     if (arr == NULL)
     {
@@ -155,7 +142,7 @@ npy_array_t *npy_array_create(const npio_size_t *dims,
     return arr;
 }
 
-void npy_array_destroy(npy_array_t *arr)
+void np_array_delete(np_array_t *arr)
 {
     if (!arr)
         return;
@@ -164,69 +151,125 @@ void npy_array_destroy(npy_array_t *arr)
     free(arr);
 }
 
-npio_status_t npy_load(const char *pfname, npy_array_t *parray)
+npy_file_t *npy_file_create()
+{
+    npy_file_t *f = (npy_file_t *) malloc(sizeof(npy_file_t));
+    if (!f)
+    {
+        return NULL;
+    }
+    f->fp            = NULL;
+    f->version_major = 0;
+    f->version_minor = 0;
+    f->dtype[0]      = '\0';
+    f->fortran_order = 0;
+    f->ndim          = 0;
+    memset(f->shape, 0, sizeof(f->shape));
+    f->header_len = 0;
+
+    return f;
+}
+
+void npy_file_delete(npy_file_t *f)
+{
+    if (!f)
+    {
+        return;
+    }
+    if (f->fp)
+    {
+        fclose(f->fp);
+        f->fp = NULL;
+    }
+    free(f);
+}
+
+npy_file_t *npy_fopen(const char *pfname, npio_status_t *statcode)
 {
     FILE *fp = fopen(pfname, "rb");
     if (!fp)
     {
-        return NPIO_EFOPEN;
+        *statcode = NPIO_EFOPEN;
+        npio_error_printf(*statcode);
+        return NULL;
     }
-    if (parray == NULL)
+    npy_file_t *pnpy = npy_file_create();
+    pnpy->fp         = fp;
+    *statcode        = NPIO_OK;
+    return pnpy;
+}
+
+npio_status_t npy_fread(npy_file_t *pnpy)
+{
+    npio_status_t statcode = NPIO_EUNKNOWN;
+
+    if (pnpy == NULL)
     {
-        return NPIO_EARR_NULL;
+        statcode = NPIO_ENPY_NULL;
+        npio_error_printf(statcode);
+        return statcode;
     }
-    char        buffer[NPIO_BUF_SIZE];
-    npio_size_t res = fread(buffer, sizeof(char), 11, fp);
-    if (res != 11)
+    if (!pnpy->fp)
     {
-        if (feof(fp) == EOF)
-        {
-            return NPIO_EOF;
-        }
-        return NPIO_EFREAD;
-    }
-    char *pheader = fgets(buffer, NPIO_BUF_SIZE, fp);
-    if (pheader == NULL)
-    {
-        return NPIO_EUNKNOWN;
+        statcode = NPIO_EUNOPENED;
+        npio_error_printf(statcode);
+        return statcode;
     }
 
-    printf("%s", pheader);
+    char buffer[11];
+
+    npio_size_t res = fread(buffer, sizeof(char), 11, pnpy->fp);
+
+    if (res != 11)
+    {
+        if (feof(pnpy->fp) == EOF)
+        {
+            statcode = NPIO_EOF;
+            npio_error_printf(statcode);
+            return statcode;
+        }
+        statcode = NPIO_EFREAD;
+        npio_error_printf(statcode);
+        return statcode;
+    }
+    char *pheader = fgets(buffer, 11, pnpy->fp);
+    if (pheader == NULL){
+
+        statcode = NPIO_EUNKNOWN;
+        npio_error_printf(statcode);
+        return statcode;
+    }
+
     npio_size_t loc1, loc2;
 
     return NPIO_OK;
 }
 
-npio_status_t npy_read(unsigned char     *buffer,
-                       npio_size_t       *word_size,
-                       const npy_shape_t *pshape,
-                       npio_bool_t       *fortran_order)
+np_array_t* npy_read(npy_file_t *pnpy, npio_status_t *statcode)
 {
-    if (buffer == NULL)
-    {
-        return NPIO_EBUF_NULL;
+    return NULL;
+}
+
+npio_status_t npy_fwrite(npy_file_t *pnpy, const char *pfname)
+{
+    npio_status_t statcode = NPIO_EUNKNOWN;
+
+    if(!pnpy){
+        statcode = NPIO_ENPY_NULL;
+        npio_error_printf(statcode);
+        return statcode;
     }
-
-    return NPIO_OK;
-}
-
-npio_status_t npy_save(npy_array_t *parray, const char *pfname)
-{
-    if (parray == NULL)
-    {
-        return NPIO_EARR_NULL;
+    if(!pfname){
+        statcode = NPIO_EFOPEN;
+        npio_error_printf(statcode);
+        return statcode;
     }
-
+    
     return NPIO_OK;
 }
 
-npio_status_t
-npy_fs_read(FILE *fp, npio_size_t word_size, const npy_shape_t *pshape, npio_bool_t fortran_order)
-{
-    return NPIO_OK;
-}
 
-npio_status_t npz_load(const char *pfname, npz_t *pnpz, npy_array_t *parray)
+npio_status_t npz_load(const char *pfname, npz_t *pnpz, np_array_t *parray)
 {
     FILE *fp = fopen(pfname, "rb");
     if (!fp)
@@ -237,7 +280,7 @@ npio_status_t npz_load(const char *pfname, npz_t *pnpz, npy_array_t *parray)
     return NPIO_OK;
 }
 
-npio_status_t npz_array_load(const char *pfname, const char *pvarname, npy_array_t *parray)
+npio_status_t npz_array_load(const char *pfname, const char *pvarname, np_array_t *parray)
 {
     return NPIO_OK;
 }
@@ -258,6 +301,9 @@ npio_status_t npio_zip_read(FILE         *fp,
 {
     return NPIO_OK;
 }
+
+
+
 
 // char BigEndianTest() {
 //     int x = 1;

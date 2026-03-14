@@ -19,7 +19,7 @@ Data types
 
 .. c:type:: npy_shape_t
 
-.. c:type:: npy_array_t
+.. c:type:: np_array_t
 
     .. code:: c
 
@@ -29,7 +29,7 @@ Data types
             npio_size_t word_size;
             npio_bool_t fortran_order;
             npio_size_t num_vals;
-        } npy_array_t;
+        } np_array_t;
 
 API
 ---
