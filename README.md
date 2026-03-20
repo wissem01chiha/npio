@@ -13,17 +13,19 @@
 
 [NumPy](https://numpy.org/doc/) provides the [save](https://numpy.org/doc/stable/reference/generated/numpy.save.html#numpy.save) method for saving arrays into **.npy** files and [savez](https://numpy.org/doc/stable/reference/generated/numpy.savez.html#numpy.savez) for zipping multiple .npy arrays together into a **.npz** file. Npio allows you to read and write these formats in C or C++
 
-Please feel free to open an issue. I will try to address any concerns as best I can.
+Please feel free to open an [issue](https://github.com/wissem01chiha/npio/issues). I will try to address any concerns as best I can.
+
+## Installation
+
+A compelete build guide for **npio** library can be found [here](https://wissem01chiha.github.io/npio/install.html)
 
 ## Documenation 
-
-A build guide for NPIO can be found [here](https://wissem01chiha.github.io/npio/install.html)
 
 All API documentation can be found [here](https://wissem01chiha.github.io/npio/index.html)
 
 ## Contributing
 
-The project is under active development, and contributions are highly encouraged.If you are interested in collaborating, please contact the maintainer via [email](chihawissem08@gmail.com)
+The project is under active development, and contributions are highly encouraged.If you are interested in collaborating, please feel free to fork the project and open a [pull request](https://github.com/wissem01chiha/npio/pulls) or contact the maintainer via [email](chihawissem08@gmail.com)
 
 ## License 
 

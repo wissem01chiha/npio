@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
+# SPDX-License-Identifier: MIT
 cmake_minimum_required(VERSION 3.24)
 
 if(POLICY CMP0091)
