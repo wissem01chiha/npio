@@ -1,24 +1,26 @@
-/**
-    Copyright (c) Wissem Chiha, 2026
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
-*/
+// SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
+// SPDX-License-Identifier: MIT
+/*
+ * Copyright 2026 Wissem Chiha <chihawissem08@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 #include "npio.h"
 
@@ -88,6 +90,12 @@ const char *npio_error_string(npio_status_t statcode)
 void npio_error_printf(npio_status_t statcode)
 {
     printf("%s\n", npio_error_string(statcode));
+}
+
+npio_int_t npio_endian_test(void)
+{
+    unsigned int x = 1;
+    return (npio_int_t) (((char *) &x)[0]);
 }
 
 np_array_t *np_array_create(const npio_size_t *dims,
@@ -216,36 +224,119 @@ npio_status_t npy_fread(npy_file_t *pnpy)
         return statcode;
     }
 
-    char buffer[11];
-
-    npio_size_t res = fread(buffer, sizeof(char), 11, pnpy->fp);
-
-    if (res != 11)
+    unsigned char magic[6];
+    if (fread(magic, 1, 6, pnpy->fp) != 6)
     {
-        if (feof(pnpy->fp) == EOF)
-        {
-            statcode = NPIO_EOF;
-            npio_error_printf(statcode);
-            return statcode;
-        }
         statcode = NPIO_EFREAD;
         npio_error_printf(statcode);
         return statcode;
     }
-    char *pheader = fgets(buffer, 11, pnpy->fp);
-    if (pheader == NULL){
 
-        statcode = NPIO_EUNKNOWN;
+    if (memcmp(magic, "\x93NUMPY", 6) != 0)
+    {
         npio_error_printf(statcode);
         return statcode;
     }
 
-    npio_size_t loc1, loc2;
+    unsigned char version[2];
+    if (fread(version, 1, 2, pnpy->fp) != 2)
+    {
+        statcode = NPIO_EFREAD;
+        npio_error_printf(statcode);
+        return statcode;
+    }
+
+    pnpy->version_major = version[0];
+    pnpy->version_minor = version[1];
+
+    unsigned short header_len;
+    if (fread(&header_len, sizeof(header_len), 1, pnpy->fp) != 1)
+    {
+        statcode = NPIO_EFREAD;
+        npio_error_printf(statcode);
+        return statcode;
+    }
+
+    pnpy->header_len = header_len;
+
+    char *pheader = (char *) malloc(header_len + 1);
+    if (!pheader)
+    {
+        npio_error_printf(statcode);
+        return statcode;
+    }
+
+    if (fread(pheader, 1, header_len, pnpy->fp) != header_len)
+    {
+        free(pheader);
+        statcode = NPIO_EFREAD;
+        npio_error_printf(statcode);
+        return statcode;
+    }
+    pheader[header_len] = '\0';
+
+    char *descr_position = strstr(pheader, "'descr':");
+    if (!descr_position)
+    {
+        free(pheader);
+        npio_error_printf(statcode);
+        return statcode;
+    }
+    char dtype[32];
+    if (sscanf(descr_position, "'descr': '%31[^']'", dtype) == 1)
+    {
+        strncpy(pnpy->dtype, dtype, sizeof(pnpy->dtype));
+    }
+
+    char *fortran_pos = strstr(pheader, "'fortran_order':");
+    if (!fortran_pos)
+    {
+        free(pheader);
+        npio_error_printf(statcode);
+        return statcode;
+    }
+    if (strstr(fortran_pos, "True"))
+    {
+        pnpy->fortran_order = 1;
+    }
+    else
+    {
+        pnpy->fortran_order = 0;
+    }
+
+    char *shape_pos = strstr(pheader, "'shape':");
+    if (!shape_pos)
+    {
+        free(pheader);
+        npio_error_printf(statcode);
+        return statcode;
+    }
+    char *start = strchr(shape_pos, '(');
+    char *end   = strchr(shape_pos, ')');
+    pnpy->ndim  = 0;
+    if (start && end && end > start)
+    {
+        char        shape_str[128];
+        npio_size_t len = end - start - 1;
+        if (len >= sizeof(shape_str))
+            len = sizeof(shape_str) - 1;
+        strncpy(shape_str, start + 1, len);
+        shape_str[len] = '\0';
+
+        char *token = strtok(shape_str, ", ");
+        while (token && pnpy->ndim < NPY_ARRAY_DIM)
+        {
+            pnpy->shape[pnpy->ndim++] = (npio_size_t) atoi(token);
+            token                     = strtok(NULL, ", ");
+        }
+    }
+
+    free(pheader);
 
     return NPIO_OK;
 }
 
-np_array_t* npy_read(npy_file_t *pnpy, npio_status_t *statcode)
+np_array_t *npy_read(npy_file_t *pnpy, npio_status_t *statcode)
 {
     return NULL;
 }
@@ -254,20 +345,21 @@ npio_status_t npy_fwrite(npy_file_t *pnpy, const char *pfname)
 {
     npio_status_t statcode = NPIO_EUNKNOWN;
 
-    if(!pnpy){
+    if (!pnpy)
+    {
         statcode = NPIO_ENPY_NULL;
         npio_error_printf(statcode);
         return statcode;
     }
-    if(!pfname){
+    if (!pfname)
+    {
         statcode = NPIO_EFOPEN;
         npio_error_printf(statcode);
         return statcode;
     }
-    
+
     return NPIO_OK;
 }
-
 
 npio_status_t npz_load(const char *pfname, npz_t *pnpz, np_array_t *parray)
 {
@@ -301,9 +393,6 @@ npio_status_t npio_zip_read(FILE         *fp,
 {
     return NPIO_OK;
 }
-
-
-
 
 // char BigEndianTest() {
 //     int x = 1;

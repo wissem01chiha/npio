@@ -17,7 +17,9 @@ Please feel free to open an issue. I will try to address any concerns as best I 
 
 ## Documenation 
 
-All API documentation can be found [here]()
+A build guide for NPIO can be found [here](https://wissem01chiha.github.io/npio/install.html)
+
+All API documentation can be found [here](https://wissem01chiha.github.io/npio/index.html)
 
 ## Contributing
 

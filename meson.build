@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
+# SPDX-License-Identifier: MIT
 project('npio',
   'c',
   version        : '0.1.0',
@@ -48,8 +50,6 @@ if build_tests
     'test/test_npy_read.c'
   ]
 
-  fs = import('fs')
-
   test_data = [
     'bool_2x2.npy',
     'complex64_3x3.npy',
@@ -58,6 +58,7 @@ if build_tests
     'int16_range.npy',
   ]
 
+  fs = import('fs')
   foreach f : test_data
     fs.copyfile(
       meson.current_source_dir() / 'test' / 'data' / f,
