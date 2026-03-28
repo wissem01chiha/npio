@@ -21,7 +21,7 @@ A compelete build guide for **npio** library can be found [here](https://wissem0
 
 ## Documenation 
 
-All API documentation can be found [here](https://wissem01chiha.github.io/npio/index.html)
+All API documentation and examples can be found [here](https://wissem01chiha.github.io/npio/index.html)
 
 ## Contributing
 

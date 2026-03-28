@@ -150,7 +150,7 @@ configure_file(
 install(FILES
   "${PROJECT_BINARY_DIR}/npio-config-version.cmake"
   "${PROJECT_BINARY_DIR}/npio-config.cmake"
-  DESTINATION share/cmake/mio)
+  DESTINATION share/cmake/npio)
 
 set(CPACK_PACKAGE_VENDOR "wissem")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "NUMPY NPY/NPZ File I/O Library")

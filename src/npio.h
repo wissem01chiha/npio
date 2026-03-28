@@ -144,16 +144,16 @@ extern "C"
         npio_int_t version_minor;
         char       dtype[32];
         npio_int_t fortran_order;
-        size_t     ndim;
-        size_t     shape[NPY_ARRAY_DIM];
-        size_t     header_len;
+        npio_size_t     ndim;
+        npio_size_t     shape[NPY_ARRAY_DIM];
+        npio_size_t     header_len;
     } npy_file_t;
 
     /** @brief Npy array shape type */
     typedef struct
     {
-        size_t shape[NPY_ARRAY_DIM];
-        size_t ndim;
+        npio_size_t shape[NPY_ARRAY_DIM];
+        npio_size_t ndim;
     } npy_shape_t;
 
     /** @brief Numpy array data descriptor */

@@ -338,7 +338,28 @@ npio_status_t npy_fread(npy_file_t *pnpy)
 
 np_array_t *npy_read(npy_file_t *pnpy, npio_status_t *statcode)
 {
-    return NULL;
+    if(!pnpy){
+        *statcode= NPIO_ENPY_NULL;
+        return NULL;
+    }
+    np_array_t *array = malloc(sizeof(np_array_t));
+    array->fortran_order = pnpy->fortran_order;
+
+    npy_shape_t* array_shape = malloc(sizeof(npy_shape_t));
+    memcpy(array->shape.shape, pnpy->shape, sizeof(npio_size_t) * pnpy->ndim);
+    array_shape->ndim = pnpy->ndim;
+    array->shape = *array_shape;
+
+    npio_size_t num_vals;
+    for (npio_size_t i = 0; i < pnpy->ndim; i++) {
+        num_vals *= pnpy->shape[i];
+    }
+    array->num_vals = num_vals;
+
+    if(strcmp(pnpy->dtype,"<f4")==0){
+        array->word_size = 8;
+    }
+    return array;
 }
 
 npio_status_t npy_fwrite(npy_file_t *pnpy, const char *pfname)
