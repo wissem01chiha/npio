@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
 # SPDX-License-Identifier: MIT
+
 project('npio',
   'c',
   version        : '0.1.0',
@@ -14,6 +15,15 @@ build_tests = get_option('build_tests')
 
 sources = [
   'src/npio.h', 'src/npio.c'
+]
+
+test_sources = [
+  'test/test_npio_strerror.c',
+  'test/test_np_array_create.c',
+  'test/test_npy_fopen.c',
+  'test/test_npy_fread.c',
+  'test/test_npy_fwrite.c',
+  'test/test_npy_read.c'
 ]
 
 incdir = include_directories('src')
@@ -40,15 +50,6 @@ npio = static_library(
 )
 
 if build_tests
-
-  test_sources = [
-    'test/test_npio_strerror.c',
-    'test/test_np_array_create.c',
-    'test/test_npy_fopen.c',
-    'test/test_npy_fread.c',
-    'test/test_npy_fwrite.c',
-    'test/test_npy_read.c'
-  ]
 
   test_data = [
     'bool_2x2.npy',
@@ -79,10 +80,6 @@ if build_tests
     test(testname, exe)
   endforeach
 endif 
-
-if build_docs
-
-endif
 
 if not meson.is_subproject()
   pkg = import('pkgconfig')
