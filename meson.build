@@ -10,11 +10,11 @@ project('npio',
 )
 
 build_shared = get_option('build_shared')
-build_docs = get_option('build_docs')
 build_tests = get_option('build_tests')
 
 sources = [
-  'src/npio.h', 'src/npio.c'
+  'src/npio.h',
+  'src/npio.c'
 ]
 
 test_sources = [
@@ -24,6 +24,14 @@ test_sources = [
   'test/test_npy_fread.c',
   'test/test_npy_fwrite.c',
   'test/test_npy_read.c'
+]
+
+test_data = [
+  'bool_2x2.npy',
+  'complex64_3x3.npy',
+  'float32_4x4.npy',
+  'int8_1x2x3.npy',
+  'int16_range.npy',
 ]
 
 incdir = include_directories('src')
@@ -50,14 +58,6 @@ npio = static_library(
 )
 
 if build_tests
-
-  test_data = [
-    'bool_2x2.npy',
-    'complex64_3x3.npy',
-    'float32_4x4.npy',
-    'int8_1x2x3.npy',
-    'int16_range.npy',
-  ]
 
   fs = import('fs')
   foreach f : test_data
