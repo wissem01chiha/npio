@@ -1,11 +1,4 @@
 option(
-    'build_testing',
-    type: 'boolean',
-    value : 'true',
-    description : 'Whether to enable globally testing'
-)
-
-option(
     'build_tests',
     type : 'boolean',
     value : 'true',
@@ -25,10 +18,3 @@ option(
     value : 'false',
     description : 'Whether to build shared librray files'
 )  
-
-option(
-    'build_docs',
-    type: 'boolean',
-    value: 'true',
-    description: 'Whether to build documentation',
-)

@@ -1,11 +1,7 @@
-cmake_minimum_required(VERSION 3.24)
+# SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
+# SPDX-License-Identifier: MIT
 
-if(POLICY CMP0091)
-  cmake_policy(SET CMP0091 NEW) # Enable MSVC_RUNTIME_LIBRARY setting
-endif()
-if(POLICY CMP0092)
-  cmake_policy(SET CMP0092 NEW) # disable /W3 warning, if possible
-endif()
+cmake_minimum_required(VERSION 3.24)
 
 project(
   npio
@@ -52,6 +48,15 @@ set(npio_sources
   src/npio.c
 )
 
+set(npio_test_sources 
+  test/test_npio_strerror.c
+  test/test_np_array_create.c
+  test/test_npy_fopen.c
+  test/test_npy_fread.c
+  test/test_npy_fwrite.c
+  test/test_npy_read.c
+)
+
 include(cmake/external/zlib.cmake)
 
 if(NPIO_BUILD_SHARED)
@@ -69,15 +74,6 @@ else()
 endif()
 
 if(NPIO_BUILD_TESTS)
-
-  set(npio_test_sources 
-    test/test_npio_strerror.c
-    test/test_np_array_create.c
-    test/test_npy_fopen.c
-    test/test_npy_fread.c
-    test/test_npy_fwrite.c
-    test/test_npy_read.c
-  )
 
   include(CTest)
   enable_testing()
@@ -148,7 +144,7 @@ configure_file(
 install(FILES
   "${PROJECT_BINARY_DIR}/npio-config-version.cmake"
   "${PROJECT_BINARY_DIR}/npio-config.cmake"
-  DESTINATION share/cmake/mio)
+  DESTINATION share/cmake/npio)
 
 set(CPACK_PACKAGE_VENDOR "wissem")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "NUMPY NPY/NPZ File I/O Library")

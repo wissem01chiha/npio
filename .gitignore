@@ -53,6 +53,10 @@
 # Build output
 build/
 builddir/
+
+
+# Visual Studio Files
+.vscode/
 .vs/
 out/
 

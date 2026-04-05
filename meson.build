@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
+# SPDX-License-Identifier: MIT
+
 project('npio',
   'c',
   version        : '0.1.0',
@@ -7,11 +10,28 @@ project('npio',
 )
 
 build_shared = get_option('build_shared')
-build_docs = get_option('build_docs')
 build_tests = get_option('build_tests')
 
 sources = [
-  'src/npio.h', 'src/npio.c'
+  'src/npio.h',
+  'src/npio.c'
+]
+
+test_sources = [
+  'test/test_npio_strerror.c',
+  'test/test_np_array_create.c',
+  'test/test_npy_fopen.c',
+  'test/test_npy_fread.c',
+  'test/test_npy_fwrite.c',
+  'test/test_npy_read.c'
+]
+
+test_data = [
+  'bool_2x2.npy',
+  'complex64_3x3.npy',
+  'float32_4x4.npy',
+  'int8_1x2x3.npy',
+  'int16_range.npy',
 ]
 
 incdir = include_directories('src')
@@ -39,25 +59,7 @@ npio = static_library(
 
 if build_tests
 
-  test_sources = [
-    'test/test_npio_strerror.c',
-    'test/test_np_array_create.c',
-    'test/test_npy_fopen.c',
-    'test/test_npy_fread.c',
-    'test/test_npy_fwrite.c',
-    'test/test_npy_read.c'
-  ]
-
   fs = import('fs')
-
-  test_data = [
-    'bool_2x2.npy',
-    'complex64_3x3.npy',
-    'float32_4x4.npy',
-    'int8_1x2x3.npy',
-    'int16_range.npy',
-  ]
-
   foreach f : test_data
     fs.copyfile(
       meson.current_source_dir() / 'test' / 'data' / f,
@@ -78,10 +80,6 @@ if build_tests
     test(testname, exe)
   endforeach
 endif 
-
-if build_docs
-
-endif
 
 if not meson.is_subproject()
   pkg = import('pkgconfig')

@@ -1,24 +1,26 @@
-/**
-    Copyright (c) Wissem Chiha, 2026
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
-*/
+// SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
+// SPDX-License-Identifier: MIT
+/*
+ * Copyright 2026 Wissem Chiha <chihawissem08@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 #ifndef NPIO_H
 #define NPIO_H
@@ -132,23 +134,26 @@ extern "C"
     typedef int npio_status_t;
 
     /** @brief Low level Npy file descriptor  */
+    /** @note  The .npy file format version is not equal to the numpy python package version
+     * refers to the binary storage specification used inside the file, eg 1.0, 2.0, and 3.0
+     */
     typedef struct
     {
-        FILE  *fp;
-        int    version_major;
-        int    version_minor;
-        char   dtype[32];
-        int    fortran_order;
-        size_t ndim;
-        size_t shape[NPY_ARRAY_DIM];
-        size_t header_len;
+        FILE      *fp;
+        npio_int_t version_major;
+        npio_int_t version_minor;
+        char       dtype[32];
+        npio_int_t fortran_order;
+        npio_size_t     ndim;
+        npio_size_t     shape[NPY_ARRAY_DIM];
+        npio_size_t     header_len;
     } npy_file_t;
 
     /** @brief Npy array shape type */
     typedef struct
     {
-        size_t shape[NPY_ARRAY_DIM];
-        size_t ndim;
+        npio_size_t shape[NPY_ARRAY_DIM];
+        npio_size_t ndim;
     } npy_shape_t;
 
     /** @brief Numpy array data descriptor */
@@ -209,6 +214,12 @@ extern "C"
     void npio_error_printf(npio_status_t statcode);
 
     /**
+     * @brief check endianness of the host machine
+     * @return 0 for big endian, 1 for little endian.
+     */
+    npio_int_t npio_endian_test(void);
+
+    /**
      * @brief Allocator for np_array_t object
      * @param dims Array of ndim elements each elment is the size of the array along one axis,
      * all values should be >=1 , 0 dimonsions are not allowed in numpy
@@ -234,12 +245,14 @@ extern "C"
 
     /**
      * @brief Allocator for npy_file_t object
+     * @param none
      * @return a pointer to a newly allocted npy_file structure
      */
     npy_file_t *npy_file_create(void);
 
     /**
      * @brief Destructor for npy_file_t object
+     * @param npy_file_t object to free
      */
     void npy_file_delete(npy_file_t *f);
 
@@ -260,18 +273,19 @@ extern "C"
      * @param pnpy pointer to an np_file_t object
      * @return error status flag
      * @note the file shouled be opened using npy_file_open, if not opened, an NPIO_EUNOPENED is
-     * retuned
+     * returned
+     * \x93NUMPY <major> <minor> <header_len>
      */
     npio_status_t npy_fread(npy_file_t *pnpy);
 
     /**
-     * @brief Read a np_array_t object base from npy file 
+     * @brief Read a np_array_t object base from npy file
      * @param pnpy pointer to a npy file struct
      * @param statcode Pointer to the status code.
      * @note the file shoule be already open and valid
      * @return a pointer to newlly allocated data struct
      */
-    np_array_t* npy_read(npy_file_t *pnpy,npio_status_t *statcode);
+    np_array_t *npy_read(npy_file_t *pnpy, npio_status_t *statcode);
 
     /**
      * @brief Write an npy_file_t base object  to *.npy file on disk
@@ -281,10 +295,6 @@ extern "C"
      * @note for reading an npy file from disk see npy_fread
      */
     npio_status_t npy_fwrite(npy_file_t *pnpy, const char *pfname);
-
-
-
-
 
     /**
      * @brief load an .npz file into memmory, .npz file format is a zipped archive of files named
