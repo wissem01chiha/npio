@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
 
 project(
   npio
@@ -34,14 +34,30 @@ cmake_dependent_option(NPIO_BUILD_TESTS
   "Build the unit tests when BUILD_TESTING is enabled and we are the root project" ON
   "BUILD_TESTING;CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR" OFF)
 
-option(ASAN "Enable AddressSanitizer" OFF)
+option(NPIO_ASAN "Enable Address Sanitizer" ON)
+option(NPIO_UBSAN "Enable Undefined Behavior Sanitizer" ON)
 
-if(ASAN)
-  if(CMAKE_C_COMPILER_ID MATCHES "AppleClang|GNU|Clang")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-    set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-  endif()
+if(CMAKE_C_COMPILER_ID MATCHES "AppleClang|GNU|Clang")
+    if(CMAKE_C_CLANG_TIDY)
+      message(STATUS "clang-tidy detected; skipping sanitizer
+       flags to avoid interfering with static analysis")
+    else()
+      if(NPIO_ASAN)
+        list(APPEND NPIO_SANITIZERS -fsanitize=address)
+      endif()
+
+      if(NPIO_UBSAN)
+        list(APPEND NPIO_SANITIZERS -fsanitize=undefined)
+      endif()
+
+      if(NPIO_SANITIZERS)
+        list(APPEND NPIO_SANITIZERS -fno-omit-frame-pointer)
+        add_library(npio_sanitizers INTERFACE)
+        target_compile_options(npio_sanitizers INTERFACE ${NPIO_SANITIZERS})
+        target_link_options(npio_sanitizers INTERFACE ${NPIO_SANITIZERS})
+        set(SANITIZERS_AVAILABLE TRUE)
+      endif()
+    endif()
 endif()
 
 set(npio_sources 
@@ -63,6 +79,9 @@ if(NPIO_BUILD_SHARED)
  add_library(npio SHARED ${npio_sources})
  set_target_properties(npio PROPERTIES OUTPUT_NAME "npio")
  target_link_libraries(npio PUBLIC ZLIB::ZLIB)
+  if(SANITIZERS_AVAILABLE)
+    target_link_libraries(npio PUBLIC npio_sanitizers)
+  endif()
 endif()
 
 add_library(npio_a STATIC ${npio_sources})
@@ -71,6 +90,9 @@ if(ZLIB_FOUND)
   target_link_libraries(npio_a PUBLIC ZLIB::ZLIB)
 else()
   target_link_libraries(npio_a PUBLIC ZLIB::ZLIBSTATIC)
+endif()
+if(SANITIZERS_AVAILABLE)
+  target_link_libraries(npio_a PUBLIC npio_sanitizers)
 endif()
 
 if(NPIO_BUILD_TESTS)
@@ -97,13 +119,15 @@ if(NPIO_BUILD_TESTS)
       COMMAND ${npio_test_bin}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
-
     if(NPIO_BUILD_SHARED)
       target_link_libraries(${npio_test_bin} PRIVATE unity npio)
       add_dependencies(${npio_test_bin} npio)
     else()
       target_link_libraries(${npio_test_bin} PRIVATE unity npio_a)
       add_dependencies(${npio_test_bin} npio_a)
+    endif()
+    if(SANITIZERS_AVAILABLE)
+      target_link_libraries(${npio_test_bin} PRIVATE npio_sanitizers)
     endif()
 
   endforeach()
