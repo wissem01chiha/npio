@@ -6,7 +6,7 @@
 [![Meson CI](https://github.com/wissem01chiha/npio/actions/workflows/meson.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/meson.yml)
 [![CodeQL](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml)
 ![GitHub Release](https://img.shields.io/github/v/release/wissem01chiha/npio)
-![Static Badge](https://img.shields.io/badge/github-pages?style=flat&logo=h&label=Documentation&link=https%3A%2F%2Fwissem01chiha.github.io%2Fnpio%2Findex.html)
+[![Static Badge](https://img.shields.io/badge/github-pages?style=flat&logo=h&label=Documentation&link=https%3A%2F%2Fwissem01chiha.github.io%2Fnpio%2Findex.html)](https://wissem01chiha.github.io/npio/)
 ![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
 [![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
 

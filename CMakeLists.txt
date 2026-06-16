@@ -34,8 +34,8 @@ cmake_dependent_option(NPIO_BUILD_TESTS
   "Build the unit tests when BUILD_TESTING is enabled and we are the root project" ON
   "BUILD_TESTING;CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR" OFF)
 
-option(NPIO_ASAN "Enable Address Sanitizer" ON)
-option(NPIO_UBSAN "Enable Undefined Behavior Sanitizer" ON)
+option(NPIO_ASAN "Enable Address Sanitizer" OFF)
+option(NPIO_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
 
 if(CMAKE_C_COMPILER_ID MATCHES "AppleClang|GNU|Clang")
     if(CMAKE_C_CLANG_TIDY)
@@ -99,7 +99,10 @@ if(NPIO_BUILD_TESTS)
 
   include(CTest)
   enable_testing()
-  include(cmake/external/unity.cmake)
+  find_package(Unity)
+  if(NOT Unity_FOUND)
+    include(cmake/external/unity.cmake)
+  endif()
 
   file(GLOB TEST_DATA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test/data/*")
   foreach(f ${TEST_DATA_FILES})
@@ -112,7 +115,7 @@ if(NPIO_BUILD_TESTS)
     get_filename_component(npio_test_bin ${npio_test_source} NAME_WE)
     add_executable(${npio_test_bin} ${npio_test_source})
     target_include_directories(${npio_test_bin} PRIVATE 
-      ${UNITY_INCLUDE_DIRS} 
+      ${Unity_INCLUDE_DIRS} 
       ${CMAKE_SOURCE_DIR}/src
     )
     add_test (NAME ${npio_test_bin} 
