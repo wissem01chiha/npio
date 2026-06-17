@@ -10,6 +10,7 @@
 [![codecov](https://codecov.io/gh/wissem01chiha/npio/branch/develop/graph/badge.svg)](https://codecov.io/gh/wissem01chiha/npio)
 ![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
 [![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/wissem01chiha/npio/master.svg)](https://results.pre-commit.ci/latest/github/wissem01chiha/npio/master)
 
 **Npio** is a C99 version of [cnpy](https://github.com/rogersce/cnpy), written by [Carl Rogers](https://github.com/rogersce). It is a library for reading and writing [NumPy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) **.npy** and **.npz** files, which is no longer actively maintained.
 
