@@ -1,14 +1,6 @@
 <!-- omit in toc -->
 # NPIO
 
-[![Ubuntu](https://github.com/wissem01chiha/npio/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/ubuntu.yml)
-[![macos](https://github.com/wissem01chiha/npio/actions/workflows/macos.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/macos.yml)
-[![Meson CI](https://github.com/wissem01chiha/npio/actions/workflows/meson.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/meson.yml)
-[![CodeQL](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml)
-[![Docs](https://github.com/wissem01chiha/npio/actions/workflows/docs.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/docs.yml)
-![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
-[![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
-
 **Npio** is a C99 version of [cnpy](https://github.com/rogersce/cnpy), written by [Carl Rogers](https://github.com/rogersce). It is a library for reading and writing [NumPy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) **.npy** and **.npz** files, which is no longer actively maintained.
 
 [NumPy](https://numpy.org/doc/) provides the [save](https://numpy.org/doc/stable/reference/generated/numpy.save.html#numpy.save) method for saving arrays into **.npy** files and [savez](https://numpy.org/doc/stable/reference/generated/numpy.savez.html#numpy.savez) for zipping multiple .npy arrays together into a **.npz** file. Npio allows you to read and write these formats in C or C++
@@ -17,96 +9,76 @@ Please feel free to open an [issue](https://github.com/wissem01chiha/npio/issues
 
 ## Installation
 
-Installation
-----------------
+### Build from Source
 
-Build from Source
-~~~~~~~~~~~~~~~~~~~~~
+#### CMake
 
-CMake
-^^^^^^^^^^^
-
-| `CMake <https://cmake.org>`__ 3.24 or higher is required.The default
+[CMake](https://cmake.org) 3.24 or higher is required.The default
   installation directory is ``/usr/local``.
-| To specify a different directory, add
+
+To specify a different directory, add
   ``-DCMAKE_INSTALL_PREFIX=/path/to/install/dir`` to the CMake
   invocation in step 4.
 
 1. Clone the repository:
 
-.. code:: shell
-
+```shell
     git clone https://github.com/wissem01chiha/npio
+```
 
 2. Configure the build:
 
-.. code:: shell
-
+```shell
    cmake -B build -DCMAKE_INSTALL_PREFIX=~/build/install
+```
 
 3. Build and install:
 
-.. code:: shell
-
+```shell
    ninja install
+```
 
-Meson
-~~~~~~~~~~~
+#### Meson
 
 Meson >= 1.10.0 is required. For more information, refer to
-`Quick-guide <https://mesonbuild.com/Quick-guide.html>`__
+[Quick-guide](https://mesonbuild.com/Quick-guide.html)
 
-.. code:: shell
-
+```shell
    meson setup builddir 
    cd builddir 
    meson compile 
+```
 
 Then install the library using:
 
-.. code:: shell
-
+```shell
    meson install
+```
 
-Bazel
-~~~~~~~~~~~
+#### Bazel
 
    [!NOTE] Bazel is not yet supported. Please use `cmake <#11-cmake>`__
    or `meson <#12-menson>`__ instead.
 
-Testing
------------
+## Testing
 
-.. _cmake-1:
+### CMake
 
-CMake
-~~~~~~~~~
-
-.. _meson-1:
-
-Meson
-~~~~~~~~~
+### Meson
 
 To run project tests:
 
-.. code:: shell
-
+```shell
    meson test 
-
-.. _bazel-1:
-
-Bazel
-~~~~~~~~~
+```
+### Bazel
 
    [!NOTE] Bazel tests are not yet supported. Use `cmake <#11-cmake>`__
    or `meson <#12-menson>`__ to run tests
 
+## API documentation
 
-## Documenation 
-
-# API documentation
-
-## Data types
+### Data types
 
 ### `npio_size_t`
 Alias for `size_t` used in APIs.
@@ -279,10 +251,7 @@ All material is provided under MIT License unless otherwise specified.
 
 See the [LICENSE](LICENSE) file for more details
 
-.. raw:: html
-
-Changelog
-----------
+## Changelog
 
 
 [Unreleased] - 2026-02-15

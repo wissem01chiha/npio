@@ -36,6 +36,7 @@ cmake_dependent_option(NPIO_BUILD_TESTS
 
 option(NPIO_ASAN "Enable Address Sanitizer" OFF)
 option(NPIO_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
+option(NPIO_COVER "Enable Test Coverage Reporting" ON)
 
 if(CMAKE_C_COMPILER_ID MATCHES "AppleClang|GNU|Clang")
     if(CMAKE_C_CLANG_TIDY)
@@ -74,6 +75,14 @@ set(npio_test_sources
 )
 
 include(cmake/external/zlib.cmake)
+if(NPIO_BUILD_TESTS)
+  include(CTest)
+  enable_testing()
+  find_package(Unity)
+  if(NOT Unity_FOUND)
+    include(cmake/external/unity.cmake)
+  endif()
+endif()
 
 if(NPIO_BUILD_SHARED)
  add_library(npio SHARED ${npio_sources})
@@ -95,14 +104,17 @@ if(SANITIZERS_AVAILABLE)
   target_link_libraries(npio_a PUBLIC npio_sanitizers)
 endif()
 
-if(NPIO_BUILD_TESTS)
-
-  include(CTest)
-  enable_testing()
-  find_package(Unity)
-  if(NOT Unity_FOUND)
-    include(cmake/external/unity.cmake)
+if(NPIO_COVER AND NOT WIN32)
+  set(NPIO_COVERAGE_COMPILE_FLAGS -g -O0 -fprofile-arcs -ftest-coverage)
+  set(NPIO_COVERAGE_LINK_FLAGS --coverage)
+  target_compile_options(npio_a PUBLIC ${NPIO_COVERAGE_COMPILE_FLAGS})
+  if(TARGET npio)
+    target_compile_options(npio PUBLIC ${NPIO_COVERAGE_COMPILE_FLAGS})
+    target_link_options(npio PUBLIC ${NPIO_COVERAGE_LINK_FLAGS})
   endif()
+endif()
+
+if(NPIO_BUILD_TESTS)
 
   file(GLOB TEST_DATA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test/data/*")
   foreach(f ${TEST_DATA_FILES})
@@ -118,7 +130,13 @@ if(NPIO_BUILD_TESTS)
       ${Unity_INCLUDE_DIRS} 
       ${CMAKE_SOURCE_DIR}/src
     )
-    add_test (NAME ${npio_test_bin} 
+
+    if(NPIO_COVER AND NOT(WIN32))
+      target_compile_options(${npio_test_bin} PRIVATE ${NPIO_COVERAGE_COMPILE_FLAGS})
+      target_link_options(${npio_test_bin} PRIVATE ${NPIO_COVERAGE_LINK_FLAGS})
+    endif()
+
+    add_test(NAME ${npio_test_bin} 
       COMMAND ${npio_test_bin}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
