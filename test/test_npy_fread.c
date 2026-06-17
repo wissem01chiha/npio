@@ -30,6 +30,8 @@ void test_npy_fread_ok(void)
 
     npio_status_t fread_status = npy_fread(file);
     TEST_ASSERT_EQUAL_INT(NPIO_OK, fread_status);
+
+    npy_file_delete(file);
 }
 
 void test_npy_fread_parse_ok(void)
@@ -53,6 +55,8 @@ void test_npy_fread_parse_ok(void)
     TEST_ASSERT_EQUAL_size_t(4, file->shape[0]);
     TEST_ASSERT_EQUAL_size_t(4, file->shape[1]);
     TEST_ASSERT_EQUAL_STRING("<f4", file->dtype);
+
+    npy_file_delete(file);
 }
 
 int main(void)

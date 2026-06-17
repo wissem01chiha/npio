@@ -33,26 +33,32 @@ void test_np_array_create_null_dims(void)
 {
     np_array_t *arr = np_array_create(NULL, 2, 1, false);
     UNITY_TEST_ASSERT_NULL(arr, __LINE__, "array should be NULL when dims is NULL");
+
+    np_array_delete(arr);
 }
 
 void test_np_array_create_zero_ndim(void)
 {
-    npio_size_t  dims_arr[] = {10, 20};
+    npio_size_t dims_arr[] = {10, 20};
     np_array_t *arr        = np_array_create(dims_arr, 0, 1, false);
     UNITY_TEST_ASSERT_NULL(arr, __LINE__, "array should be NULL when ndim is 0");
+
+    np_array_delete(arr);
 }
 
 void test_np_array_create_invalid_dimension(void)
 {
-    npio_size_t  dims_arr[] = {10, 0};
+    npio_size_t dims_arr[] = {10, 0};
     np_array_t *arr        = np_array_create(dims_arr, 2, 1, false);
     UNITY_TEST_ASSERT_NULL(arr, __LINE__, "array should be NULL when any dimension is 0");
+
+    np_array_delete(arr);
 }
 
 void test_np_array_delete_null(void)
 {
     np_array_delete(NULL);
-    UNITY_TEST_ASSERT_EQUAL_INT(1,1, __LINE__, "destroying NULL should be safe");
+    UNITY_TEST_ASSERT_EQUAL_INT(1, 1, __LINE__, "destroying NULL should be safe");
 }
 
 int main(void)

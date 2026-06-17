@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
 
 project(
   npio
@@ -34,14 +34,31 @@ cmake_dependent_option(NPIO_BUILD_TESTS
   "Build the unit tests when BUILD_TESTING is enabled and we are the root project" ON
   "BUILD_TESTING;CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR" OFF)
 
-option(ASAN "Enable AddressSanitizer" OFF)
+option(NPIO_ASAN "Enable Address Sanitizer" OFF)
+option(NPIO_UBSAN "Enable Undefined Behavior Sanitizer" OFF)
+option(NPIO_COVER "Enable Test Coverage Reporting" ON)
 
-if(ASAN)
-  if(CMAKE_C_COMPILER_ID MATCHES "AppleClang|GNU|Clang")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-    set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fno-omit-frame-pointer -fsanitize=address")
-  endif()
+if(CMAKE_C_COMPILER_ID MATCHES "AppleClang|GNU|Clang")
+    if(CMAKE_C_CLANG_TIDY)
+      message(STATUS "clang-tidy detected; skipping sanitizer
+       flags to avoid interfering with static analysis")
+    else()
+      if(NPIO_ASAN)
+        list(APPEND NPIO_SANITIZERS -fsanitize=address)
+      endif()
+
+      if(NPIO_UBSAN)
+        list(APPEND NPIO_SANITIZERS -fsanitize=undefined)
+      endif()
+
+      if(NPIO_SANITIZERS)
+        list(APPEND NPIO_SANITIZERS -fno-omit-frame-pointer)
+        add_library(npio_sanitizers INTERFACE)
+        target_compile_options(npio_sanitizers INTERFACE ${NPIO_SANITIZERS})
+        target_link_options(npio_sanitizers INTERFACE ${NPIO_SANITIZERS})
+        set(SANITIZERS_AVAILABLE TRUE)
+      endif()
+    endif()
 endif()
 
 set(npio_sources 
@@ -58,11 +75,22 @@ set(npio_test_sources
 )
 
 include(cmake/external/zlib.cmake)
+if(NPIO_BUILD_TESTS)
+  include(CTest)
+  enable_testing()
+  find_package(Unity)
+  if(NOT Unity_FOUND)
+    include(cmake/external/unity.cmake)
+  endif()
+endif()
 
 if(NPIO_BUILD_SHARED)
  add_library(npio SHARED ${npio_sources})
  set_target_properties(npio PROPERTIES OUTPUT_NAME "npio")
  target_link_libraries(npio PUBLIC ZLIB::ZLIB)
+  if(SANITIZERS_AVAILABLE)
+    target_link_libraries(npio PUBLIC npio_sanitizers)
+  endif()
 endif()
 
 add_library(npio_a STATIC ${npio_sources})
@@ -72,12 +100,21 @@ if(ZLIB_FOUND)
 else()
   target_link_libraries(npio_a PUBLIC ZLIB::ZLIBSTATIC)
 endif()
+if(SANITIZERS_AVAILABLE)
+  target_link_libraries(npio_a PUBLIC npio_sanitizers)
+endif()
+
+if(NPIO_COVER AND NOT WIN32)
+  set(NPIO_COVERAGE_COMPILE_FLAGS -g -O0 -fprofile-arcs -ftest-coverage)
+  set(NPIO_COVERAGE_LINK_FLAGS --coverage)
+  target_compile_options(npio_a PUBLIC ${NPIO_COVERAGE_COMPILE_FLAGS})
+  if(TARGET npio)
+    target_compile_options(npio PUBLIC ${NPIO_COVERAGE_COMPILE_FLAGS})
+    target_link_options(npio PUBLIC ${NPIO_COVERAGE_LINK_FLAGS})
+  endif()
+endif()
 
 if(NPIO_BUILD_TESTS)
-
-  include(CTest)
-  enable_testing()
-  include(cmake/external/unity.cmake)
 
   file(GLOB TEST_DATA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test/data/*")
   foreach(f ${TEST_DATA_FILES})
@@ -90,20 +127,28 @@ if(NPIO_BUILD_TESTS)
     get_filename_component(npio_test_bin ${npio_test_source} NAME_WE)
     add_executable(${npio_test_bin} ${npio_test_source})
     target_include_directories(${npio_test_bin} PRIVATE 
-      ${UNITY_INCLUDE_DIRS} 
+      ${Unity_INCLUDE_DIRS} 
       ${CMAKE_SOURCE_DIR}/src
     )
-    add_test (NAME ${npio_test_bin} 
+
+    if(NPIO_COVER AND NOT(WIN32))
+      target_compile_options(${npio_test_bin} PRIVATE ${NPIO_COVERAGE_COMPILE_FLAGS})
+      target_link_options(${npio_test_bin} PRIVATE ${NPIO_COVERAGE_LINK_FLAGS})
+    endif()
+
+    add_test(NAME ${npio_test_bin} 
       COMMAND ${npio_test_bin}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
-
     if(NPIO_BUILD_SHARED)
       target_link_libraries(${npio_test_bin} PRIVATE unity npio)
       add_dependencies(${npio_test_bin} npio)
     else()
       target_link_libraries(${npio_test_bin} PRIVATE unity npio_a)
       add_dependencies(${npio_test_bin} npio_a)
+    endif()
+    if(SANITIZERS_AVAILABLE)
+      target_link_libraries(${npio_test_bin} PRIVATE npio_sanitizers)
     endif()
 
   endforeach()

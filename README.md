@@ -5,9 +5,12 @@
 [![macos](https://github.com/wissem01chiha/npio/actions/workflows/macos.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/macos.yml)
 [![Meson CI](https://github.com/wissem01chiha/npio/actions/workflows/meson.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/meson.yml)
 [![CodeQL](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/codeql.yml)
-[![Docs](https://github.com/wissem01chiha/npio/actions/workflows/docs.yml/badge.svg)](https://github.com/wissem01chiha/npio/actions/workflows/docs.yml)
+![GitHub Release](https://img.shields.io/github/v/release/wissem01chiha/npio)
+[![Static Badge](https://img.shields.io/badge/github-pages?style=flat&logo=h&label=Documentation&link=https%3A%2F%2Fwissem01chiha.github.io%2Fnpio%2Findex.html)](https://wissem01chiha.github.io/npio/)
+[![codecov](https://codecov.io/gh/wissem01chiha/npio/branch/develop/graph/badge.svg)](https://codecov.io/gh/wissem01chiha/npio)
 ![GitHub License](https://img.shields.io/github/license/wissem01chiha/npio)
 [![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/wissem01chiha/npio/master.svg)](https://results.pre-commit.ci/latest/github/wissem01chiha/npio/master)
 
 **Npio** is a C99 version of [cnpy](https://github.com/rogersce/cnpy), written by [Carl Rogers](https://github.com/rogersce). It is a library for reading and writing [NumPy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) **.npy** and **.npz** files, which is no longer actively maintained.
 
@@ -17,7 +20,7 @@ Please feel free to open an [issue](https://github.com/wissem01chiha/npio/issues
 
 ## Installation
 
-A compelete build guide for **npio** library can be found [here](https://wissem01chiha.github.io/npio/install.html)
+A compelete build guide for **npio** library can be found [here](https://wissem01chiha.github.io/npio/index.html)
 
 ## Documenation 
 
