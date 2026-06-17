@@ -142,14 +142,14 @@ extern "C"
      */
     typedef struct
     {
-        FILE      *fp;
-        npio_int_t version_major;
-        npio_int_t version_minor;
-        char       dtype[32];
-        npio_int_t fortran_order;
-        npio_size_t     ndim;
-        npio_size_t     shape[NPY_ARRAY_DIM];
-        npio_size_t     header_len;
+        FILE       *fp;
+        npio_int_t  version_major;
+        npio_int_t  version_minor;
+        char        dtype[32];
+        npio_int_t  fortran_order;
+        npio_size_t ndim;
+        npio_size_t shape[NPY_ARRAY_DIM];
+        npio_size_t header_len;
     } npy_file_t;
 
     /** @brief Npy array shape type */
@@ -305,7 +305,7 @@ extern "C"
      * entries for more information about npz file format look into :
      * https://numpy.org/doc/stable/reference/generated/numpy.savez_compressed.html
      * @param pfname npz filename
-     * @param pnpz  pointer to npz_t struct 
+     * @param pnpz  pointer to npz_t struct
      */
     npio_status_t npz_fread(const char *pfname, npz_t *pnpz);
 
@@ -317,7 +317,7 @@ extern "C"
      * @return a pointer to a newly allocated np_array_t object, or NULL on failure
      * @note the npz file should be already loaded into memory using npz_fread
      */
-    np_array_t * npz_read(const npz_t *pnpz, const char *pvarname, npio_status_t *statcode);
+    np_array_t *npz_read(const npz_t *pnpz, const char *pvarname, npio_status_t *statcode);
 
     /**
      * @brief Saves an arra to a .npz file
@@ -325,8 +325,11 @@ extern "C"
      * @param pfname the name of the array to save inside the zip file, this
      * @param data pointer to the array data to save
      * @param pshape pointer to the shape of the array to save
-     * @param pmode the mode to open the zip file in, either "w" for write or "a" for append, default is "w"
-     * @note the .npz file format is a zipped archive of files named after the variables they contain. this typcillay require zlib librray to read archive npy entries for more information about npz file format look into :
+     * @param pmode the mode to open the zip file in, either "w" for write or "a" for append,
+     * default is "w"
+     * @note the .npz file format is a zipped archive of files named after the variables they
+     * contain. this typcillay require zlib librray to read archive npy entries for more information
+     * about npz file format look into :
      * https://numpy.org/doc/stable/reference/generated/numpy.savez_compressed.html
      */
     npio_status_t npz_fwrite(const char *pfname, const npz_t *pnpz);
@@ -340,9 +343,9 @@ extern "C"
      * @return Error status flag
      */
     npio_status_t npio_zip_fread(FILE         *fp,
-                                npio_uint16_t nrecs,
-                                npio_size_t   global_header_size,
-                                npio_size_t   global_header_offset);
+                                 npio_uint16_t nrecs,
+                                 npio_size_t   global_header_size,
+                                 npio_size_t   global_header_offset);
 
 #ifdef __cplusplus
 }
