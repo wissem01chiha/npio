@@ -1,5 +1,3 @@
-<!-- omit in toc -->
-# NPIO
 
 **Npio** is a C99 version of [cnpy](https://github.com/rogersce/cnpy), written by [Carl Rogers](https://github.com/rogersce). It is a library for reading and writing [NumPy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) **.npy** and **.npz** files, which is no longer actively maintained.
 
@@ -57,8 +55,7 @@ Then install the library using:
 
 #### Bazel
 
-   [!NOTE] Bazel is not yet supported. Please use `cmake <#11-cmake>`__
-   or `meson <#12-menson>`__ instead.
+   Bazel is not yet supported. Please use [cmake](#cmake) or [meson](menson) instead.
 
 ## Testing
 
@@ -73,8 +70,7 @@ To run project tests:
 ```
 ### Bazel
 
-   [!NOTE] Bazel tests are not yet supported. Use `cmake <#11-cmake>`__
-   or `meson <#12-menson>`__ to run tests
+   Bazel tests are not yet supported. Use [cmake](cmake) or [meson](menson) to run tests
 
 ## API documentation
 
@@ -89,13 +85,19 @@ Boolean type for npio, defined as `uint8_t`.
 ### `npio_uint16_t`
 Unsigned 16‑bit integer type for npio.
 
-### `npio_int_t`
+`npio_int_t`
 General integer type for npio.
 
-### `npio_status_t`
+```c
+npio_status_t
+```
+
 Type for specifying an error or status code.
 
-### `npy_file_t`
+```c
+npy_file_t
+```
+
 Low level NPY file descriptor.
 
 > **Note:**  
@@ -114,23 +116,23 @@ typedef struct {
     size_t     header_len;
 } npy_file_t;
 ```
-.. c:struct:: npy_shape_t
 
-   Npy array shape type.
+`npy_shape_t`
 
-   .. code-block:: c
+Npy array shape type.
 
+```c
       typedef struct {
           size_t shape[NPY_ARRAY_DIM];
           size_t ndim;
       } npy_shape_t;
+```
 
-.. c:struct:: np_array_t
+`np_array_t`
 
-   Numpy array data descriptor.
+Numpy array data descriptor.
 
-   .. code-block:: c
-
+```c
       typedef struct {
           char       *data;
           npy_shape_t shape;
@@ -138,36 +140,35 @@ typedef struct {
           npio_bool_t fortran_order;
           npio_size_t num_vals;
       } np_array_t;
+```
 
-.. c:struct:: npz_entry_t
+`npz_entry_t`
+Array mapping in an NPZ archive.
 
-   Array mapping in an NPZ archive.
-
-   .. code-block:: c
-
+```c
       typedef struct {
           char      *key;
           np_array_t value;
       } npz_entry_t;
+```
 
-.. c:struct:: npz_t
+`npz_t`
 
    NPZ file entries mapping.
 
-   .. code-block:: c
+```c
 
       typedef struct {
           npz_entry_t *entries;
           npio_size_t  count;
       } npz_t;
-
+```
 
 .. c:struct:: npy_file_t
 
    Low level NPY file descriptor.
 
-   .. code-block:: c
-
+```c
       typedef struct {
           FILE      *fp;
           npio_int_t version_major;
@@ -178,11 +179,11 @@ typedef struct {
           size_t     shape[NPY_ARRAY_DIM];
           size_t     header_len;
       } npy_file_t;
+```
 
-API
----
-
-.. c:function:: void npio_strerror(npio_status_t statcode, char *buf, npio_size_t bufsize)
+```c
+void npio_strerror(npio_status_t statcode, char *buf, npio_size_t bufsize)
+```
 
    Return a human readable string describing the specified error.
 
@@ -192,7 +193,9 @@ API
    :return: The number of characters that would have been written to the buffer if it were large enough.
             If an encoding error occurs, a negative number is returned.
 
-.. c:function:: npio_status_t npy_fread(npy_file_t *pnpy)
+```c
+npio_status_t npy_fread(npy_file_t *pnpy)
+```
 
    Read and parse the header of a NumPy ``.npy`` file into a :c:type:`npy_file_t` structure.
 
@@ -200,45 +203,56 @@ API
    :return: Status code indicating success or type of error.
 
 
-.. c:function:: const char *npio_error_string(npio_status_t statcode)
+#### `npio_status_t npy_fread(npy_file_t *pnpy)`
 
-   Convert a :c:type:`npio_status_t` error code into a human readable string.
+```c
+npio_status_t npy_fread(npy_file_t *pnpy)
+```
 
-   :param statcode: The error code to convert.
-   :return: A pointer to a constant string describing the error.
-            Returns ``NULL`` if the status code is not supported in the npio error list.
+Read and parse the header of a NumPy `.npy` file into a `npy_file_t` structure.
 
+- **pnpy**: Pointer to a `npy_file_t` structure with an open file handle.
+- **Returns**: Status code indicating success or type of error.
 
-.. c:function:: void npio_error_printf(npio_status_t statcode)
+#### `const char *npio_error_string(npio_status_t statcode)`
 
-   Prints a human readable description of an npio error status.
+```c
+const char *npio_error_string(npio_status_t statcode)
+```
 
-   :param statcode: npio status code.
-   :return: This function does not return a value.
+Convert a `npio_status_t` error code into a human readable string.
 
-   .. note::
-        
-        This function is mainly intended for debugging purposes.
+- **statcode**: The error code to convert.
+- **Returns**: Pointer to a constant string describing the error. Returns `NULL` if the status code is not supported in the npio error list.
 
+#### `void npio_error_printf(npio_status_t statcode)`
 
+```c
+void npio_error_printf(npio_status_t statcode)
+```
 
-.. c:function:: np_array_t * np_array_create(const npio_size_t *dims,npio_size_t ndim,npio_size_t word_size,npio_bool_t fortran_order)
+Prints a human readable description of an npio error status.
 
+- **statcode**: npio status code.
+- **Returns**: None.
 
-   Allocator for a :c:struct:`np_array_t` object.
+> **Note:** This function is mainly intended for debugging purposes.
 
-   :param dims: Array of ``ndim`` elements, each specifying the size of the array along one axis.
-                All values must be greater than or equal to 1. Zero dimensions are not allowed in NumPy.
-   :param ndim: Number of array dimensions. Must be greater than or equal to 1.
-   :param word_size: The size in bytes of one element in the array.
-   :param fortran_order: Array memory layout. NumPy usually defaults to 0 (C-order).
-                         If specified, nonzero indicates Fortran-order. Default in npio library is also 0.
-   :return: Pointer to the allocated :c:struct:`np_array_t` structure.
-            Returns ``NULL`` if an invalid dimension value is provided or if ``ndim`` is zero.
+#### `np_array_t *np_array_create(const npio_size_t *dims, npio_size_t ndim, npio_size_t word_size, npio_bool_t fortran_order)`
 
-   .. note::
-      This function performs validation of dimensions and will return a null pointer if
-      the number of dimensions is zero or if any dimension size is invalid.
+```c
+np_array_t *np_array_create(const npio_size_t *dims, npio_size_t ndim, npio_size_t word_size, npio_bool_t fortran_order)
+```
+
+Allocator for a `np_array_t` object.
+
+- **dims**: Array of `ndim` elements, each specifying the size of the array along one axis. All values must be greater than or equal to 1. Zero dimensions are not allowed in NumPy.
+- **ndim**: Number of array dimensions. Must be greater than or equal to 1.
+- **word_size**: The size in bytes of one element in the array.
+- **fortran_order**: Array memory layout. NumPy usually defaults to 0 (C-order). If specified, nonzero indicates Fortran-order. Default in npio library is also 0.
+- **Returns**: Pointer to the allocated `np_array_t` structure. Returns `NULL` if an invalid dimension value is provided or if `ndim` is zero.
+
+> **Note:** This function performs validation of dimensions and will return a null pointer if the number of dimensions is zero or if any dimension size is invalid.
 
 
 ## Contributing
