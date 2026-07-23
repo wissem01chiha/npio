@@ -12,19 +12,16 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/wissem01chiha/npio/badge)](https://www.codefactor.io/repository/github/wissem01chiha/npio)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/wissem01chiha/npio/master.svg)](https://results.pre-commit.ci/latest/github/wissem01chiha/npio/master)
 
-**Npio** is a C99 version of [cnpy](https://github.com/rogersce/cnpy), written by [Carl Rogers](https://github.com/rogersce). It is a library for reading and writing [NumPy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) **.npy** and **.npz** files, which is no longer actively maintained.
+Npio is a C version of [cnpy](https://github.com/rogersce/cnpy), written by [Carl Rogers](https://github.com/rogersce). It is a library for reading and writing [NumPy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) .npy and .npz files, which is no longer actively maintained.
 
-[NumPy](https://numpy.org/doc/) provides the [save](https://numpy.org/doc/stable/reference/generated/numpy.save.html#numpy.save) method for saving arrays into **.npy** files and [savez](https://numpy.org/doc/stable/reference/generated/numpy.savez.html#numpy.savez) for zipping multiple .npy arrays together into a **.npz** file. Npio allows you to read and write these formats in C or C++
+[NumPy](https://numpy.org/doc/) provides the [save](https://numpy.org/doc/stable/reference/generated/numpy.save.html#numpy.save) method for saving arrays into .npy files and [savez](https://numpy.org/doc/stable/reference/generated/numpy.savez.html#numpy.savez) for zipping multiple .npy arrays together into a .npz file. Npio allows you to read and write these formats in C or C++
+
 
 Please feel free to open an [issue](https://github.com/wissem01chiha/npio/issues). I will try to address any concerns as best I can.
 
-## Installation
-
-A compelete build guide for **npio** library can be found [here](https://wissem01chiha.github.io/npio/index.html)
-
 ## Documenation 
 
-All API documentation and examples can be found [here](https://wissem01chiha.github.io/npio/index.html)
+All  documentation and examples can be found [here](https://wissem01chiha.github.io/npio/index.html)
 
 ## Contributing
 
