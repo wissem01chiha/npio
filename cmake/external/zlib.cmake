@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
+# SPDX-License-Identifier: MIT
 find_package(ZLIB QUIET)
 if(ZLIB_FOUND)
     message(STATUS "zlib found: ${ZLIB_INCLUDE_DIRS}")

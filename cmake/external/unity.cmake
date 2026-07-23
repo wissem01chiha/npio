@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) Wissem Chiha
+# SPDX-License-Identifier: MIT
 find_package(Unity QUIET)
 if(Unity_FOUND)
     message(STATUS "Unity Test found: ${Unity_DIR}")
