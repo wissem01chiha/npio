@@ -29,6 +29,10 @@ set (CTEST_OUTPUT_ON_FAILURE TRUE)
 set(BUILD_TESTING ON)
 
 option(NPIO_BUILD_SHARED "Build shared library" OFF)
+# this option is usful in projects when zlib is already build or fetched by the 
+# project and we want to use it instead of building it again.
+# by default set to ON in standlone builds
+option(NPIO_FORCE_LOCAL_ZLIB "force auto-fetch and build of zlib" ON)
 
 cmake_dependent_option(NPIO_BUILD_TESTS
   "Build the unit tests when BUILD_TESTING is enabled and we are the root project" ON
@@ -74,7 +78,10 @@ set(npio_test_sources
   test/test_npy_read.c
 )
 
-include(cmake/external/zlib.cmake)
+if(NPIO_FORCE_LOCAL_ZLIB)
+  include(cmake/external/zlib.cmake)
+endif()
+
 if(NPIO_BUILD_TESTS)
   include(CTest)
   enable_testing()
